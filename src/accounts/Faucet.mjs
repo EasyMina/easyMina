@@ -1,3 +1,23 @@
+/*
+    Name
+        Account.js
+    Description
+        Requests test tokens and displays the response in a structured format.
+    Blocks
+        {
+            'graphQl': { config['graphQl'] },
+            'messages': { config['messages'] },
+            'network': { config['network'] },
+            'print': { config['print'] }, 
+        }
+    Public:
+        Variables
+        Methods
+            .init( { config } )
+            .start( { receiver } )
+*/
+
+
 import axios from 'axios'
 // import { GraphQl } from '../interactions/GraphQl.mjs'
 import { PrintConsole } from './../helpers/PrintConsole.mjs'

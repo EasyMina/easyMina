@@ -1,3 +1,41 @@
+/*
+    Name
+        config.mjs
+    Description
+        This file contains almost all parameters, gathered in one place. This structuring is crucial to enable an auto-generated documentation.
+    Overview
+        Blocks
+            | NR | NAME       |
+            |:--|:--          |
+            | A | Console     |
+            | B | docs        |
+            | C | environment |
+            | D | graphQl     |
+            | E | messages    |
+            | F | meta        |
+            | G | network     |  
+            | H | print       |
+            | I | typescript  |  
+            | J | validations | 
+
+        In use:
+            | NR | NAME             | A | B | C | D | E | F | G | H | I | J |
+            |:--|:--                |:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|
+            | 1 | EasyMina.mjs      | X | X | X | X | X | X | X | X | X | X |
+            | 2 | Account.mjs       | X |   | X | X | X | X | X | X |   |   |
+            | 3 | Cryption.mjs      |   |   |   |   |   |   |   |   |   |   |
+            | 4 | Faucet.mjs        |   |   |   | X | X |   | X | X |   |   |
+            | 5 | Credential.mjs    |   |   | X |   |   |   |   |   |   |   |
+            | 6 | SmartContract.mjs | X | X | X |   |   | X | X |   |   |   |
+            | 7 | Workspace.mjs |   |   | X |   |   | X |   |   | X | X |   |
+            | 8 | PrintConsole.mjs  |   |   |   |   | X |   |   | X |   |   |
+            | 9 | GraphQl.mjs       |   |   |   | X | X |   | X | X |   |   |
+                                      3   3   4   4   6   3   5   6   2   1 
+*/                                   
+
+
+
+
 import moment from 'moment'
 
 
@@ -80,23 +118,6 @@ export const configImported = {
             }
         }
     },
-/*
-    'structs': {
-        'split': '__', 
-        'minaAddressRegex': /^B62[a-km-zA-HJ-NP-Z1-9]{52}$/,
-        'deployer': {
-            'name': [ 'String' ],
-            'type': [ 'String' ],
-            'time__unix': [ 'Int' ],
-            'time__format': [ 'String' ],
-            'address__private': [ 'String' ],
-            'address__public': [ 'MinaPublicAddress' ],
-            'comment': [ 'String' ],
-            'faucet__transaction': [ 'String' ],
-            'faucet__network': [ 'String' ]
-        }
-    },
-*/
     'network': {
         'use': 'berkeley', 
         'berkeley': {

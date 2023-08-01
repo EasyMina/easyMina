@@ -1,3 +1,23 @@
+/*
+    Name
+        Workspace.mjs
+    Description
+        This class creates the workspace folders.
+    Blocks
+        { 
+            'environment': { ...config['environment'] },
+            'meta': { ...config['meta'] },
+            'typescript': { ...config['typescript'] },
+            'validations': { ...config['validations'] }
+        }
+    Public
+        Variables
+        Methods
+            .init( { config } )
+            .start() (async)
+*/
+
+
 import fs from 'fs'
 import axios from 'axios'
 import { keyPathToValue } from './../helpers/mixed.mjs'

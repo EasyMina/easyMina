@@ -1,21 +1,36 @@
-// import fs from 'fs'
+/*
+    Name
+        Cryption.js
+    Description
+        Encrypts and decrypts user credentials
+    Blocks
+        {}
+    Public:
+        Variables
+        Methods
+            .init( { silent, secret } )
+            .encrypt( { text } ) 
+            .decrypt( { })
+*/
+
+
 import crypto from 'crypto'
 
 
 export class Cryption {
 
     constructor() {
-        this.config = {
+        this.#config = {
             'algorithm': 'aes-256-cbc'
         }
-        this.state
-        this.silent
+        this.#state
+        this.#silent
     }
 
 
     init( { silent=false, secret=null } ) {
-        this.silent = silent
-        this.state = {
+        this.#silent = silent
+        this.#state = {
             'secret': null
         }
 
@@ -29,8 +44,8 @@ export class Cryption {
         const iv = crypto.randomBytes( 16 )
 
         const cipher = crypto.createCipheriv( 
-            this.config['algorithm'], 
-            this.state['secret'], 
+            this.#config['algorithm'], 
+            this.#state['secret'], 
             iv 
         )
         const encrypted = Buffer.concat( [ 
@@ -52,8 +67,8 @@ export class Cryption {
 
     decrypt( { hash } ) {
         const decipher = crypto.createDecipheriv(
-            this.config['algorithm'], 
-            this.state['secret'],
+            this.#config['algorithm'], 
+            this.#state['secret'],
             Buffer.from( hash['iv'], 'hex' ) 
         )
 
@@ -69,7 +84,7 @@ export class Cryption {
     #addSecret( { secret } ) {
         if ( typeof secret === 'string' || secret instanceof String ) {
             const str = this.#hashString( { 'string': secret } )
-            this.state['secret'] = str
+            this.#state['secret'] = str
 
         } else {
             console.log( 'Secret is not a string.' )

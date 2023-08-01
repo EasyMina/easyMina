@@ -1,3 +1,21 @@
+/*
+    Name
+        Credentials.js
+    Description
+        Verifies the validity of stored accounts and whether the private key matches the public key.
+    Blocks
+        {
+            'environment': { ...config['environment'] }
+        }
+    Public
+        Variables
+        Methods
+            .init( { config } )
+            .checkEnvironment()
+            .checkAccounts()
+*/
+
+
 import fs from 'fs'
 
 

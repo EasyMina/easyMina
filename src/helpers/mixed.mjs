@@ -1,3 +1,15 @@
+/*
+    Name
+        mixed.mjs
+    Description
+        Here, various additional functionalities are stored.
+    Public
+        findClosestString( { input, keys } )
+        keyPathToValue( { data, keyPath, separator='__' } )
+
+*/
+
+
 function findClosestString( { input, keys } ) {
     function distance( a, b ) {
         let dp = Array( a.length + 1 )

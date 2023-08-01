@@ -1,3 +1,24 @@
+/*
+    Name
+        SmartContract.js
+    Description
+        This class contains methods through which one can interact with the Smart Contract. 
+    Blocks
+        {
+            'console': { ...config['console'] },
+            'docs': { ...config['docs'] },
+            'environment': { ...config['environment'] },
+            'meta': { ...config['meta'] },
+            'network': { ...config['network'] }
+        }
+    Public
+        Variables
+        Methods
+            .init( { config, smartContractPath, smartContractClassName } ) (async)
+            .deploy( { accountPath } ) (async)
+*/
+
+
 import fs from 'fs'
 import moment from 'moment'
 

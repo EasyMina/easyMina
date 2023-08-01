@@ -1,3 +1,31 @@
+/*
+    Name
+        Account.js
+
+    Description
+        Create a Mina Account and fetch account balance.
+
+    Blocks
+        {
+            'console': { ...config['console'] },
+            'environment': { ...config['environment'] }
+            'graphQl': { ...config['graphQl'] },
+            'messages': { ...config['messages'] },
+            'meta': { ...config['meta'] },
+            'network': { ...config['network'] },
+            'print': { ...config['print'] },
+        }
+
+    Public:
+        Variables
+        Methods
+            .init( { secret, config } ) (async)
+            .readDeployer( { path } ) 
+            .createDeployer()
+            .fetchAccount()
+*/
+
+
 import fs from 'fs'
 import { Cryption } from './Cryption.mjs'
 import { Faucet } from './Faucet.mjs'

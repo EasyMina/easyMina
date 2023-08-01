@@ -1,3 +1,23 @@
+/*
+    Name
+        PrintConsole.mjs
+    Description
+        Here, internationalized messages can be output to the console. Additionally, a variety of formatting options have been implemented.
+    Blocks
+        { 
+            'print': { ...config['print'] }, 
+            'messages': { ...config['messages'] },
+            // 'network': { ...config['network'] } optional
+        }
+    Public
+        Variables
+        Methods
+            .init( { config } )
+            .print( { vars={}, key, status=null } ) (async)
+            .printQuestionExperimental() (async)
+*/
+
+
 import readline from 'readline'
 
 

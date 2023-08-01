@@ -1,3 +1,25 @@
+/*
+    Name
+        GraphQl.mjs
+    Description
+        This class establishes a connection to GraphQL and simplifies data interpretation.
+    Blocks
+        {
+            'graphQl': { ...config['graphQl'] },
+            'messages': { ...config['messages'] },
+            'network': { ...config['network'] },
+            'print': { ...config['print'] }
+        }
+    Public
+        Variables
+        Methods
+            .init( { config } )
+            .payload( { cmd, vars } )
+            .request( { payload } )
+            .waitForSignal( { cmd, vars } )
+*/
+
+
 import axios from 'axios'
 import { PrintConsole } from '../helpers/PrintConsole.mjs'
 import moment from 'moment'

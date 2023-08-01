@@ -1,3 +1,47 @@
+/*
+/*
+    Name
+        EasyMina.mjs
+    Description
+        This class serves as a wrapper to connect the classes mentioned below. It also stores the state of EasyMina globally.
+    Tree
+        config.mjs
+            |--- PrintConsole.mjs
+            |--- EasyMina.mjs
+                |--- Account.mjs
+                    |--- Cryption.mjs
+                    |--- Faucet.mjs    
+                        |--- PrintConsole.mjs
+            |--- Credentials.mjs
+            |--- SmartContract.mjs
+            |--- Workspace.mjs
+                |--- mixed.mjs
+            |--- GraphQl.mjs
+                |--- PrintConsole.mjs
+    Blocks
+        {
+            'console': { ...config['console'] },
+            'docs': { ...config['docs'] },
+            'environment': { ...config['environment'] },
+            'graphQl': { ...config['graphQl'] },
+            'messages': { ...config['messages'] },
+            'meta': { ...config['meta'] },
+            'network': { ...config['network'] },
+            'print': { ...config['print'] },
+            'typescript': { ...config['typescript'] },
+            'validations': { ...config['validations'] },
+        }
+    Public
+        Variables
+            state
+            account
+        Methods
+            .setEnvironment( { silent=false }={} )
+            .deployContract( {} )
+*/
+
+
+
 import moment from 'moment'
 import fs from 'fs'
 
