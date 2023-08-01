@@ -1,0 +1,6 @@
+.mina/
+workdir/
+tsconfig.json
+test/
+package-lock.json
+node_modules/
