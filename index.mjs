@@ -19,5 +19,5 @@ await easyMina
         'projectName': 'my-latest-project',
         'deployerFileName': 'default--1690747562.json',
         'smartContractFileName': 'hello.ts'
-    } )
+    } ) 
 */
