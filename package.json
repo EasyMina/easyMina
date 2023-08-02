@@ -1,0 +1,15 @@
+{
+  "name": "easymina",
+  "version": "0.0.8",
+  "description": "EasyMina is a beginner-friendly Node.js module that assists you in creating a bare-bones environment for the Mina blockchain.",
+  "main": "src/EasyMina.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "EasyMina",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "moment": "^2.29.4"
+  }
+}
