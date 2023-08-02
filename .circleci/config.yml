@@ -1,7 +1,7 @@
 jobs:
   build:
     docker:
-      - image: circleci/node:18-browsers
+      - image: cimg/node:20.5.0
     steps:
       - checkout
       - run: node --version
