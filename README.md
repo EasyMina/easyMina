@@ -1,3 +1,6 @@
+![CircleCI](https://img.shields.io/circleci/build/github/EasyMina/easyMina/main)
+
+
 # Easy Mina
 
 Made for zk beginners and busy beavers 🦫
