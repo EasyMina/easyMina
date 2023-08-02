@@ -18,6 +18,9 @@ import crypto from 'crypto'
 
 
 export class Cryption {
+    #config
+    #state
+    #silent
 
     constructor() {
         this.#config = {

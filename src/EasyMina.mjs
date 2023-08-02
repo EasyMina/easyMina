@@ -48,6 +48,7 @@ Please read the full Apache License 2.0 for more details on your rights and resp
         Methods
             .setEnvironment( { silent=false }={} )
             .deployContract( {} )
+            .health()
 */
 
 
@@ -73,6 +74,7 @@ export class EasyMina {
     #config
     state
     account
+
 
     constructor() {
         this.#setConfig()
@@ -218,6 +220,11 @@ export class EasyMina {
         await smartContract.deploy( { accountPath } )
 
         return this
+    }
+
+
+    health() {
+        return this.#config['meta']['easyMinaVersion']
     }
 
 

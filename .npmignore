@@ -1,3 +1,9 @@
 .mina/
 workdir/
 tsconfig.json
+package-lock.json
+node_modules/
+package.json
+package-lock.json
+tsconfig.json
+index.mjs
