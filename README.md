@@ -44,7 +44,7 @@ await easyMina.setEnvironment( {
 
 ## Documentation
 
-Please visit https//easymina.github.io
+Please visit [https//easymina.github.io](https//easymina.github.io)
 
 
 ## Contributing
