@@ -1,4 +1,4 @@
-import { EasyMina } from 'easymina'
+import { EasyMina } from './../src/EasyMina.mjs'
 
 const easyMina = new EasyMina()
 const test = easyMina.health()
