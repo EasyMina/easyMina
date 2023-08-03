@@ -49,6 +49,7 @@ Please read the full Apache License 2.0 for more details on your rights and resp
             .setEnvironment( { silent=false }={} )
             .deployContract( {} )
             .health()
+            .getConfig()
 */
 
 
@@ -225,6 +226,11 @@ export class EasyMina {
 
     health() {
         return this.#config['meta']['easyMinaVersion']
+    }
+
+
+    getConfig() {
+        return this.#config
     }
 
 
