@@ -36,14 +36,13 @@ await easyMina.setEnvironment( {
 
 ## Table of Contents
 
-1. [Examples](#examples)<br>
+1. [Quickstart](#quickstart)<br>
 2. [Documentation](#documentation)
 3. [Contributing](#contributing)<br>
 4. [Limitations](#limitations)<br>
-5. [Credits](#Credits)<br>
+5. [Credits](#credits)<br>
 6.  [License](#license)<br>
 7.  [Code of Conduct](#code-of-conduct)<br>
-8.  [Support my Work](#support-my-work)<br>
 
 ## Documentation
 
@@ -62,7 +61,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/a6b8/e
 
 - This project was supported by the [zkIgnite](https://zkignite.minaprotocol.com) grant program.
 
-## Licence
+## License
 
 The module is available as open source under the terms of the [Apache 2.0](https://github.com/EasyMina/easyMina/blob/main/LICENSE).
 
