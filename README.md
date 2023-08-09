@@ -47,12 +47,12 @@ await easyMina.setEnvironment( {
 
 ## Documentation
 
-Please visit [https//easymina.github.io](https//easymina.github.io)
+Please visit [https://easymina.github.io](https://easymina.github.io)
 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/a6b8/easymina. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/a6b8/easy-mina/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/a6b8/easymina. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/EasyMina/easyMina/blob/main/CODE_OF_CONDUCT.md).
 
 ## Limitations
 
@@ -64,8 +64,8 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/a6b8/e
 
 ## Licence
 
-The module is available as open source under the terms of the [Apache 2.0](https://github.com/a6b8/easy-mina/LICENCE).
+The module is available as open source under the terms of the [Apache 2.0](https://github.com/EasyMina/easyMina/blob/main/LICENSE).
 
 ## Code of Conduct
 
-Everyone interacting in the AsciiToSvg project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/a6b8/easy-mina/CODE_OF_CONDUCT.md).
+Everyone interacting in the AsciiToSvg project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/EasyMina/easyMina/blob/main/CODE_OF_CONDUCT.md).

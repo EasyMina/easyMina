@@ -39,15 +39,16 @@ export class Credentials {
 
 
     checkEnvironment() {
-        process.stdout.write( '    Folder             ' )
+        // process.stdout.write( '    Folder             ' )
 
         this.#state['folders'] = this.#scanFolder()
         !this.#state['folders']['valid'] ? this.#createFolder() : ''
 
+        
         let msg = ''
-        msg += '🟩 '
-        // msg += this.#state['folders']['valid'] ? 'Found! ' : 'Created! '
-        msg += this.#config['root']
+        msg += '  ├── '
+        msg += `${this.#config['root']}`
+        msg += this.#state['folders']['valid'] ? '' : '*'
 
         console.log( msg )
 
@@ -56,7 +57,7 @@ export class Credentials {
 
 
     checkAccounts() {
-        process.stdout.write( '    Accounts           ' )
+        // process.stdout.write( '    Accounts           ' )
 
         const result = this.#locations['accounts']
             .reduce( ( acc, a, index ) => {
@@ -74,9 +75,12 @@ export class Credentials {
             .entries( result )
             .map( ( a, index ) => {
                 const key = this.#config[ a[ 0 ] ]['folder']
-                const str = `${key}: ${a[ 1 ].length}`
+                const str = `  │   ├── ${key} (${a[ 1 ].length})`
+                console.log( str )
                 return str
             } )
+
+        /*
             .join( ', ' )
 
         let msg = ''
@@ -84,6 +88,7 @@ export class Credentials {
         // msg += 'Found! '
         msg += found
         console.log( msg )
+        */
         
         return result
     }

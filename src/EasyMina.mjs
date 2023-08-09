@@ -155,9 +155,28 @@ export class EasyMina {
         this.#validUserInput( { 'method':'setEnvironment', 'args': arguments } )
         this.#setConfig()
 
-        console.log( 'Project' )
+        const logo = `
+     -- - - - - - --*-- - - - - - --
+    |       ___           ___       |
+    |      /\\  \\         /\\__\\      |
+    |     /::\\  \\       /::|  |     |
+    |    /:/\\:\\  \\     /:|:|  |     |
+    |   /::\\~\\:\\  \\   /:/|:|__|__   |
+    |  /:/\\:\\ \\:\\__\\ /:/ |::::\\__\\  |
+    |  \\:\\~\\:\\ \\/__/ \\/__/~~/:/  /  |
+    |   \\:\\ \\:\\__\\         /:/  /   |
+    |    \\:\\ \\/__/        /:/  /    |
+    |     \\:\\__\\         /:/  /     |
+    |      \\/__/         \\/__/      |
+    |                               |
+     -- - -- E a s y M i n a -- - -- 
+    | change the world with zk tech |  
+    ---------------------------------  
+`
+        console.log( logo )
+        console.log( 'PROJECT' )
         console.log( `  Name                 🟩 ${this.#config['meta']['name']}` )
-        console.log( 'Environment' )
+        console.log( 'ENVIRONMENT' )
 
         this.state = {
             'accounts': {
@@ -179,7 +198,7 @@ export class EasyMina {
 
         await this.#addEnvironmentWorkspace() 
 
-        console.log( 'Account' )
+        console.log( 'CREDENTIALS' )
         await this.#addDeployers()
 
         console.log()
@@ -394,7 +413,7 @@ export class EasyMina {
 
 
     async #addEnvironmentWorkspace() {
-        console.log( '  Workspace' )
+        // console.log( '  Workspace' )
 
         const config = { 
             'meta': { ...this.#config['meta'] },
@@ -412,7 +431,7 @@ export class EasyMina {
 
 
     #addEnvironmentCredentials() {
-        console.log( '  Credentials' )
+        // console.log( '  Credentials' )
         const credentials = new Credentials()
 
         credentials
@@ -546,21 +565,20 @@ export class EasyMina {
         let chooseAccount
         let newAccount
         let graphQl
+        let transactionHash
 
         if( status === 'new' ) {
-            console.log( '🟩 Create Account' )
+            // console.log( '🟩 Create Account' )
             newAccount = await this.#initAccount( { 'mode': 'new' } )
         }
 
-        let transactionHash
-
         switch( status ) {
             case 'known':
-                console.log( '🟩 Use funded account' )
+                // console.log( '🟩 Use funded account' )
                 chooseAccount = accounts[ readyToUse[ 0 ]['index'] ]
                 break
             case 'pending':
-                console.log( '🟩 Wait for pending faucet' )
+                // console.log( '🟩 Wait for pending faucet' )
 
                 const faucet1 = accounts[ faucetPending[ 0 ]['index'] ]['content']['data']['faucets']
                     .find( a => a['network'] === this.#config['network'][ this.#config['network']['use'] ]['faucet']['network'] )
@@ -572,6 +590,7 @@ export class EasyMina {
                     .find( a => a['network'] === this.#config['network'][ this.#config['network']['use'] ]['faucet']['network'] )
 
                 transactionHash = faucet2['transaction']
+                chooseAccount = newAccount
                 break
             default:
                 console.log( 'Status not known' )
@@ -579,7 +598,7 @@ export class EasyMina {
                 break
         }
 
-
+/*
         if( status !== 'known' ) {
             const graphQl = new GraphQl()
             const config = {
@@ -602,34 +621,85 @@ export class EasyMina {
                 chooseAccount = newAccount
             }
         }
+*/
 
-        return chooseAccount
+        return [ chooseAccount, status, transactionHash ]
     }
 
 
     async #addDeployers() {
-        process.stdout.write( '  Overall              ' )
+        // process.stdout.write( '  Overall              ' )
         const valids = await this.#deployersValidate()
         const [ readyToUse, faucetPending, accounts ] = await
             this.#deployerAccounts( { valids } )
 
-        this.account = await this.#deployerSelectAccount( { readyToUse, faucetPending, accounts } )
+        const [ account, status, transactionHash ] = await this.#deployerSelectAccount( { readyToUse, faucetPending, accounts } )
+        this.account = account
 
-        process.stdout.write( '  Status               ' )
-        let msg = [
-            [ 'Funded:', readyToUse.length ],
-            [ 'Faucet Pending', faucetPending.length ]
+        // process.stdout.write( '  Status               ' )
+
+        console.log( '  Accounts ' )
+        const m = [
+            [ 'Funded', readyToUse.length, 'new' ],
+            [ 'Pending', faucetPending.length, 'pending' ],
+            [ 'Empty', ( valids.length - readyToUse.length ) - faucetPending.length, 'empty' ]
         ]
-            .map( a => `${a[ 0 ]} ${a[ 1 ]}` )
+            .forEach( ( a, index, all ) => {
+                let msg = ''
+                if( index === all.length - 1 ) {
+                    msg += '  │   └── '
+                } else {
+                    msg += '  │   ├── '
+                }
+                msg += `${a[ 0 ]} (${a[ 1 ]})`
+
+                console.log( msg )
+            } )
+
+        console.log( `  └── ${this.account['content']['data']['address']['public']} (${status})` )
+
+        let use = this.#config['network']['use']
+        let url = ''
+        url += this.#config['network'][ use ]['explorer']['wallet']
+        url += this.account['content']['data']['address']['public']
+
+        const n = [
+            [ 'File', `${this.account.content['meta']['fileName']}` ],
+            [ 'Explorer', url ],
+        ]
+
+        transactionHash ? n.push( [ 'Transaction', transactionHash ] ) : ''
+
+        n
+            .forEach( ( a, index, all ) => {
+                let msg = ''
+                if( index === all.length - 1 ) {
+                    msg += '      └── '
+                } else {
+                    msg += '      ├── '
+                }
+                msg += `${a[ 1 ]}`
+                console.log( msg )
+            } )
+
+/*
+        let use = this.#config['network']['use']
+        let url = ''
+        url += this.#config['network'][ use ]['explorer']['wallet']
+        url += this.account['content']['data']['address']['public']
+
+
             .join( ', ' )
 
         console.log( `🟩 ${msg}` )
+*/
 
       //  process.stdout.write( '  Selection            ' )
 /*
         this.#deployerSelectAccount( { readyToUse, faucetPending, accounts } )
 */
 
+/*
         msg = ''
         msg += '  Choose               '
         msg += '🟩 '
@@ -659,6 +729,7 @@ export class EasyMina {
             .join( ', ' ) 
 
         console.log( msg1 )
+*/
 
         return true
     }

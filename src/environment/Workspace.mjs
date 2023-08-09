@@ -42,14 +42,14 @@ export class Workspace {
         await this.#checkWorkFiles()
         this.#addGitIgnore()
         this.#addConfig()
-        await this.#addTemplate()
+        // await this.#addTemplate()
 
         return true
     }
 
 
     #addGitIgnore() {
-        process.stdout.write( '  Gitignore            ' )
+        // process.stdout.write( '  Gitignore            ' )
 
         let exists = true
         let correct = false
@@ -79,10 +79,9 @@ export class Workspace {
         }
 
         let msg = ''
-        msg += '🟩 '
-        msg += exists ? '' : 'Created! '
-        msg += correct ? `${this.#config['environment']['addresses']['root']} included in ` : ''
-        msg += `${path}`
+        msg += '  ├── .gitignore'
+        msg += exists ? '' : '*'
+        msg += correct ? ` (${this.#config['environment']['addresses']['root']} included)` : ''
         console.log( msg )
 
         return true
@@ -90,8 +89,8 @@ export class Workspace {
 
 
     #addConfig() {
-        console.log( '  Typescript           ')
-        process.stdout.write( '    Config             ' )
+        // console.log( '  Typescript           ')
+        // process.stdout.write( '    Config             ' )
 
         const path = this.#config['typescript']['fileName']
         let exists = true
@@ -106,9 +105,8 @@ export class Workspace {
         } 
 
         let msg = ''
-        msg += '🟩 '
-        msg += exists ? '' : 'Created! '
-        msg += `${path}`
+        msg += '  └── tsconfig.json'
+        msg += exists ? '' : '*'
 
         console.log( msg )
 
@@ -117,9 +115,10 @@ export class Workspace {
 
 
     #addWorkDir() {
-        process.stdout.write( '    Folder             ' )
+        // process.stdout.write( '    Folder             ' )
 
         let exists = true
+
         const result = [
             'typescript', 'build'
         ]
@@ -128,16 +127,16 @@ export class Workspace {
                 if( !fs.existsSync( dir ) ) {
                     exists = false
                     fs.mkdirSync( dir, { 'recursive': true } )
-                } else {
                 }
 
                 return acc
             }, {} )
 
+
         let msg = ''
-        msg += '🟩 '
-        msg += exists ? '' : 'Created! '
+        msg += '  ├── '
         msg += `${this.#config['environment']['workspace']['contracts']['root']}`
+        msg += exists ? '' : '*'
         console.log( msg )
 
         return true
@@ -145,17 +144,20 @@ export class Workspace {
 
 
     async #checkWorkFiles() {
-        process.stdout.write( '    Files              ' )
-
-        const result = [ 'typescript', 'build' ]
-            .map( ( key, index ) => {
-                const dir = this.#config['environment']['workspace']['contracts'][ key ]['full']
-                const files = fs
-                    .readdirSync( dir )
-                    .filter( ( file ) => !file.startsWith( '.' ) )
-                const folder = this.#config['environment']['workspace']['contracts'][ key ]['folder']
-                return `${folder}: ${files.length}`
-            } )
+        const keys = [ 'typescript', 'build' ]
+        for( const key of keys ) {
+            const dir = this.#config['environment']['workspace']['contracts'][ key ]['full']
+            const files = fs
+                .readdirSync( dir )
+                .filter( ( file ) => !file.startsWith( '.' ) )
+            const folder = this.#config['environment']['workspace']['contracts'][ key ]['folder']
+            const str = `  │   ├── ${folder} (${files.length})`
+            console.log( str )
+            if( key === 'typescript' ) {
+                await this.#addTemplate()
+            }
+        }
+/*
             .join( ', ' ) 
 
         let msg = ''
@@ -163,14 +165,14 @@ export class Workspace {
         // msg += result !== '' ? 'Found! ' : ''
         msg += result
         console.log( msg )
-
+*/
         return true
     }
     
 
 
     async #addTemplate() {
-        process.stdout.write( '    Template           ' )
+        // process.stdout.write( '    Template           ' )
 
         const cmd = this.#addTemplatePrepare()
 
@@ -186,8 +188,8 @@ export class Workspace {
         }
 
         let msg = ''
-        msg += '🟩 '
-        msg += exists ? 'Exists, not replaced! ' : 'Created! '
+        msg += '  │   │   └── '
+        msg += exists ? '' : '*'
         msg += `${cmd['fileName']}`
         console.log( msg )
 
