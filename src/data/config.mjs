@@ -49,9 +49,9 @@ export const configImported = {
     'docs': {
         'url': 'https://easymina.github.io/',
         'options': 'options',
-        'setEnvironment': 'features/setEnvironment.html',
-        'fetchInformation': 'features/fetchEnvironment.html',
-        'deployContract': 'features/deployContract.html'
+        'setEnvironment': 'methods/setEnvironment.html',
+        'fetchInformation': 'methods/fetchEnvironment.html',
+        'deployContract': 'methods/deployContract.html'
     },
     'environment': {
         'addresses': {
@@ -108,8 +108,9 @@ export const configImported = {
             },
             'source': {
                 //'source': 'https://gist.github.com/a6b8/e6baafbad2e42e4a259c10b6a3dcc836'
-                'content': "import {\n  Field,\n  SmartContract,\n  state,\n  State,\n  method,\n} from 'snarkyjs';\n\n\nexport class Square extends SmartContract {\n    @state(Field) num = State<Field>();\n    \n    \n    init() {\n        super.init();\n        this.num.set( Field( 3 ) );\n    }\n\n\n    @method update( square: Field ) {\n        const currentState = this.num.get();\n        this.num.assertEquals( currentState );\n        square.assertEquals( currentState.mul( currentState ) );\n        this.num.set( square );\n    }\n}",
+                'content': "import {\n  Field,\n  SmartContract,\n  state,\n  State,\n  method,\n} from 'snarkyjs';\nexport class Main extends SmartContract {\n    events = { 'easyMina': Field };\n    @state(Field) num = State<Field>();\n    \n    \n    init() {\n        super.init();\n        this.num.set( Field( 3 ) );\n        this.emitEvent( 'easyMina', Field( 123456789 ) );\n    }\n    @method update( square: Field ) {\n        const currentState = this.num.get();\n        this.num.assertEquals( currentState );\n        square.assertEquals( currentState.mul( currentState ) );\n        this.num.set( square );\n    }\n}",
                 'name': '{{name}}.ts',
+                'className': 'Main'
             },
             'parse': {
                 'gist': 'https://api.github.com/gists/{{three}}',
@@ -537,7 +538,7 @@ export const configImported = {
                 },
                 "validation": "string__fileNameCredentials",
                 "category": "account",
-                "methods": [ 'deployContract' ]
+                "methods": []
             },
             "environment__addresses__contracts__folder": {
                 "userPath": {

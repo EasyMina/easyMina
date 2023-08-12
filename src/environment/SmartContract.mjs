@@ -111,7 +111,7 @@ export class SmartContract {
                     }
                 } catch( e ) {
                     console.log( e )
-                    acc = null
+                    acc = []
                 }
                 return acc
             }, raw )

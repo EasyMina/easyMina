@@ -176,6 +176,8 @@ export class EasyMina {
         console.log( logo )
         console.log( 'PROJECT' )
         console.log( `  Name                 🟩 ${this.#config['meta']['name']}` )
+        console.log( `  ClassName            🟩 ${this.#config['environment']['template']['source']['className']}` )
+        console.log( `  Timestamp            🟩 ${this.#config['meta']['unix']}` )
         console.log( 'ENVIRONMENT' )
 
         this.state = {
@@ -199,7 +201,28 @@ export class EasyMina {
         await this.#addEnvironmentWorkspace() 
 
         console.log( 'CREDENTIALS' )
-        await this.#addDeployers()
+        const { status, transactionHash }= await this.#addDeployers()
+
+        if( status === 'pending' || status === 'new' ) {
+            const graphQl = new GraphQl()
+            const config = {
+                'network': { ...this.#config['network'] },
+                'graphQl': { ...this.#config['graphQl'] },
+                'messages': { ...this.#config['messages'] },
+                'print': { ...this.#config['print'] }
+            }
+            graphQl.init( { config } )
+
+            const cmd = 'transactionByHash'
+            const vars = {
+                'hash': transactionHash
+            }
+
+            await graphQl.waitForSignal( { cmd, vars } )
+            console.log( `  Faucet               🟩 Found` )
+            process.exit( 1 )
+        }
+
 
         console.log()
         return this
@@ -208,17 +231,17 @@ export class EasyMina {
 
     async deployContract( {} ) {
         console.log( 'Deploy Contract' )
+        
         this.#validUserInput( { 'method':'deployContract', 'args': arguments } ) 
         this.#setConfig()
-
 
         let _accountPath = null
         if( this.account ) {
             _accountPath = this.account['state']['path']
+        } else {
         }
 
         let [ accountPath, smartContractPath ] = this.#validUserInputTypescript( { 'accountPath': _accountPath } )
-
 
         if( this.account ) {
             process.stdout.write( '  Acccount             ' )
@@ -234,7 +257,7 @@ export class EasyMina {
             'console': { ...this.#config['console'] }
         }
 
-        const smartContractClassName = 'Square'
+        const smartContractClassName = this.#config['environment']['template']['source']['className']
         const smartContract = new SmartContract()
         await smartContract.init( { config, smartContractPath, smartContractClassName } )
         await smartContract.deploy( { accountPath } )
@@ -268,11 +291,11 @@ export class EasyMina {
         } else {
             paths['deployerFileName'] = accountPath
         }
-
+/*
         if( !fs.existsSync( paths['deployerFileName'] ) ) {
             messages.push( `Path to "deployerFileName" does not exist:  ${paths['deployerFileName']}` )
         }
-
+*/
         paths['smartContractFileName'] = ''
         paths['smartContractFileName'] += this.#config['environment']['workspace']['contracts']['build']['full']
         paths['smartContractFileName'] += this.#config['environment']['workspace']['contracts']['typescript']['fileName']
@@ -731,6 +754,6 @@ export class EasyMina {
         console.log( msg1 )
 */
 
-        return true
+        return { status, transactionHash }
     }
 }
