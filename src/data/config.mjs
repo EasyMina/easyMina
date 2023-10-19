@@ -7,7 +7,7 @@
         Blocks
             | NR | NAME       |
             |:--|:--          |
-            | A | Console     |
+            | A | console     |
             | B | docs        |
             | C | environment |
             | D | graphQl     |
@@ -108,7 +108,7 @@ export const configImported = {
             },
             'source': {
                 //'source': 'https://gist.github.com/a6b8/e6baafbad2e42e4a259c10b6a3dcc836'
-                'content': "import {\n  Field,\n  SmartContract,\n  state,\n  State,\n  method,\n} from 'snarkyjs';\nexport class Main extends SmartContract {\n    events = { 'easyMina': Field };\n    @state(Field) num = State<Field>();\n    \n    \n    init() {\n        super.init();\n        this.num.set( Field( 3 ) );\n        this.emitEvent( 'easyMina', Field( 123456789 ) );\n    }\n    @method update( square: Field ) {\n        const currentState = this.num.get();\n        this.num.assertEquals( currentState );\n        square.assertEquals( currentState.mul( currentState ) );\n        this.num.set( square );\n    }\n}",
+                'content': "import {\n  Field,\n  SmartContract,\n  state,\n  State,\n  method,\n} from 'o1js';\nexport class Main extends SmartContract {\n    events = { 'easyMina': Field };\n    @state(Field) num = State<Field>();\n    \n    \n    init() {\n        super.init();\n        this.num.set( Field( 3 ) );\n        this.emitEvent( 'easyMina', Field( 123456789 ) );\n    }\n    @method update( square: Field ) {\n        const currentState = this.num.get();\n        this.num.assertEquals( currentState );\n        square.assertEquals( currentState.mul( currentState ) );\n        this.num.set( square );\n    }\n}",
                 'name': '{{name}}.ts',
                 'className': 'Main'
             },
