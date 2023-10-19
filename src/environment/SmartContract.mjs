@@ -76,7 +76,7 @@ export class SmartContract {
 
 
     async #addSnarkyjs() {
-        this.#snarkyjs = await import( 'snarkyjs' )
+        this.#snarkyjs = await import( 'o1js' )
 
         return true
     }

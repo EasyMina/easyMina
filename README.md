@@ -17,14 +17,14 @@ Helps you set up:
 ## Quickstart
 
 node
-```
+```bash
 npm init -y
 npm i easymina
 ```
 
 index.mjs
 
-```
+```js
 import { EasyMina } from 'easymina'
 
 const easyMina = new EasyMina()
