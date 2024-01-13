@@ -1,0 +1,29 @@
+{
+  "name": "easymina",
+  "version": "1.0.0",
+  "main": "src/EasyMina.mjs",
+  "directories": {
+    "test": "tests"
+  },
+  "bin": {
+    "easymina": "bin/easymina"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [ "Mina", "zkApp"],
+  "author": "EasyMina",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^1.6.3",
+    "express": "^4.18.2",
+    "figlet": "^1.7.0",
+    "inquirer": "^9.2.12",
+    "marked": "^11.1.0",
+    "minadata": "^0.0.94",
+    "moment": "^2.29.4",
+    "o1js": "^0.14.2",
+    "patternfinder": "^0.0.1"
+  },
+  "description": ""
+}
