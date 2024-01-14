@@ -1,5 +1,6 @@
 import inquirer from 'inquirer'
 import figlet from 'figlet'
+import chalk from 'chalk'
 
 import { EasyMina } from './EasyMina.mjs'
 import readline from 'readline'
@@ -104,7 +105,7 @@ export class CLI {
             {
                 type: 'input',
                 name: 'projectName',
-                message: 'Enter your name (optional):',
+                message: 'Enter your project name:',
                 default: '',
                 validate: function ( input ) {
                     return input.trim() !== '' ? true : 'Project Name can not be empty.'
@@ -155,6 +156,7 @@ export class CLI {
         names = names
             .split( ',' )
             .map( name => name.trim() )
+            .filter( a => a !== '' )
         await this.#easyMina
             .createAccounts( { names, 'networkName': 'berkeley', groupName } )
 
@@ -308,7 +310,9 @@ export class CLI {
         const execAsync = util.promisify( exec )
         const p = `${process.cwd()}/package.json`
         if( fs.existsSync( p ) ) {
-            console.log( 'Npm package.json found.' )
+            const msg = '✔ Npm package.json found.'
+            const msgColor = chalk.green( msg )
+            console.log( msgColor )
             return true
         }
 
@@ -331,7 +335,9 @@ export class CLI {
     async #checkProject() {
         const projects = this.#easyMina.getProjectNames()
         if( projects.length !== 0 ) {
-            console.log( `${projects.length} Project${projects.length === 1 ? '' : 's'} found.` )
+            const msg = `✔ ${projects.length} Project${projects.length === 1 ? '' : 's' } found.`
+            const msgColor = chalk.green( msg )
+            console.log( msgColor )
             return true
         }
 
@@ -358,11 +364,13 @@ export class CLI {
                 }, [] )
                 .sort()
 
-            console.log( `${accountsArr.length} Account${accountsArr.length===1 ? '' : 's'} found.` )
+            const msg = `✔ ${accountsArr.length} Account${accountsArr.length===1 ? '' : 's'} found.`
+            const msgColor = chalk.green( msg )
+            console.log( msgColor )
             return true
         }
 
-        console.log( 'No accounts found. Should test accounts be created?')
+        console.log( 'No accounts found. Should test accounts be created?' )
         const response = await inquirer.prompt( [
             {
                 'type': 'confirm',
@@ -390,13 +398,23 @@ export class CLI {
         const status = this.#easyMina.getEnvironmentStatus()
         if( status['environmentReady'] ) {
             this.#easyMina.setEnvironment()
-            console.log( 'Environment ready.' )
+            const msg = '✔ Environment ready.'
+            const msgColor = chalk.green( msg )
+            console.log( msgColor )
         } else {
-            console.log( 'The following directories are missing, should they be created?' )
+            const msg = 'The following directories are missing, should they be created?'
+            const msgColor = chalk.green( msg )
+            console.log( msgColor )
             Object
                 .entries( status['folders'] )
                 .filter( a => !a[ 1 ]['status'] )
-                .forEach( a => console.log( `- ${a[ 1 ]['path']}` ))
+                .forEach( ( a, index, all ) => {
+                    if( all.length - 1 !== index ) {
+                        console.log( `  ├── ${a[ 1 ]['path']}` )
+                    } else {
+                        console.log( `  └── ${a[ 1 ]['path']}` )
+                    }
+                } )
             
             const response = await inquirer.prompt( [
                 {

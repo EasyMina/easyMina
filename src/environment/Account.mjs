@@ -5,6 +5,7 @@ import { PrivateKey } from 'o1js'
 import axios from 'axios'
 import fs from 'fs'
 import moment from 'moment'
+import ora from 'ora'
 
 
 export class Account {
@@ -20,8 +21,8 @@ export class Account {
     }
 
 
-    async create( { name, groupName, pattern=true, networkName, encrypt, id } ) {
-        const deployer = this.#createAddress( { name, pattern } )
+    async create( { name, groupName, pattern=true, networkName, encrypt, id, spinner } ) {
+        const deployer = this.#createAddress( { name, pattern, spinner } )
 
         const faucet = await this.#sendFaucet( { 
             'publicKey': deployer['publicKey'],
@@ -67,6 +68,7 @@ export class Account {
         struct['body']['account']['privateKey'] = deployer['privateKey']
 
         struct['disclaimer'] = this.#config['accounts']['disclaimer']
+
         return struct
     }
 
@@ -173,7 +175,7 @@ export class Account {
     }
 
 
-    #createAddress( { name, pattern=true } ) {
+    #createAddress( { name, pattern=true, spinner } ) {
         let user, presetKey
 
         const search = name
@@ -192,9 +194,16 @@ export class Account {
             let loop = true
             let index = 0
 
-            process.stdout.write( `  ${name}  `)
+            // process.stdout.write( )
+            // const spinner = ora()
+            // spinner.start( `${name} (${index})` )
             while( loop ) {
-                index % 1000 === 0 ? process.stdout.write( `.` ) : ''
+                if( index % 50 === 0 ) {
+                    spinner.text = `${name} (${index})`
+                    spinner.render()
+                }
+
+                // index % 1000 === 0 ? process.stdout.write( `.` ) : ''
                 user = this.#getKeyPairs()
                 const result = this.#patternFinder
                     .getResult( {
@@ -210,7 +219,7 @@ export class Account {
                     // console.log( 'not found.' )
                 }
             }
-            console.log( '' )
+            // spinner.succeed( `${name} - ${JSON.stringify( user ) }` )
         } 
 
         return user

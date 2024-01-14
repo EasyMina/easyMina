@@ -52,6 +52,8 @@ import { MinaData } from 'minadata'
 import path from 'path'
 import moment from 'moment'
 import fs from 'fs'
+import ora from 'ora'
+
 import { PrivateKey } from 'o1js'
 import axios from 'axios'
 import crypto from 'crypto'
@@ -120,7 +122,7 @@ export class EasyMina {
         }
 
         this.#minaData = new MinaData()
-        this.#minaData.init({})
+        this.#minaData.init( {} )
 
         if( cfg['setSecret'] ) {
             this.setSecret()
@@ -338,22 +340,53 @@ export class EasyMina {
         this.setEnvironment()
         const missingNames = this.#getMissingAccounts( { names, groupName } )
         const deployers = []
+
+        for( let i = 0; i < names.length; i++ ) {
+            const name = names[ i ]
+
+            const spinner = ora()
+            spinner.start( name )
+            if( !missingNames.includes( name ) ) {
+                const address = await this.getAccount( { name, groupName } )
+                spinner.info( `${name} (${shortenAddress( { 'publicKey': address['publicKey']['base58'] } )})` )
+            } else {
+                const deployer = await this.#createAccount( {
+                    name,
+                    groupName,
+                    pattern,
+                    networkName,
+                    spinner
+                } )
+                spinner.succeed( `${name} (${deployer['header']['addressShort']})` )
+            }
+        }
+
+/*
+        //const spinner = ora( 'Loading' )
+        //spinner.start()
         for( let i = 0; i < missingNames.length; i++ ) {
+            // console.log( `${i}`)
             const [ name, groupName ] = missingNames[ i ]
+            // const spinner = ora( `create ${name} ` )
+            // spinner.start()
+            // spinner.color = 'yellow'
+            // spinner.text = name
             const deployer = await this.createAccount( {
                 name,
                 groupName,
                 pattern,
                 networkName
             } )
-            deployers.push( deployer )
+            // spinner.color = 'green'
+            // spinner.succeed( `${name}` )
+            // spinner.succeed()
         }
-
+*/
         return deployers
     }
 
 
-    async createAccount( { name, groupName, networkName, pattern=true } ) {
+    async #createAccount( { name, groupName, networkName, pattern=true, spinner } ) {
         const [ messages, comments ] = this.#validateCreateAccount( { name, groupName, pattern, networkName } )
         printMessages( { messages, comments } )
 
@@ -374,7 +407,7 @@ export class EasyMina {
 
         const id = this.#state['secretId']
         deployer = await account
-            .create( { name, groupName, pattern, networkName, encrypt, id } )
+            .create( { name, groupName, pattern, networkName, encrypt, id, spinner } )
 
         const fileContent = this.#encryption
             .encryptCredential( { 'credential': deployer } )
@@ -405,6 +438,7 @@ export class EasyMina {
         } else {
             result = fs
                 .readdirSync( folderPath )
+                .filter( a => a.endsWith( '.txt' ) )
                 .map( a => a.split( '.' )[ 0 ] )
         }
         return result
@@ -712,7 +746,6 @@ export class EasyMina {
         } )
 
         const missingNames = names
-            .map( name => [ name, groupName ] )
             .filter( name => {
                 if( Object.hasOwn( availableDeyployers, groupName ) ) {
                     if( Object.hasOwn( availableDeyployers[ groupName ], name ) ) {

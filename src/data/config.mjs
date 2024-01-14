@@ -295,7 +295,7 @@ export const config = {
     },
     'accounts': {
         'disclaimer': 'Do not share this file with anyone.', 
-        'maxTries': 25000,
+        'maxTries': 75000,
         'personas': {
             'chars': [
                 'a', 'b', 'c', 'd', 'e', 'f',
