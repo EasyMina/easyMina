@@ -259,7 +259,6 @@ export class EasyMina {
         } )
         printMessages( { messages, comments } )
 
-
         const projectNames = this.getProjectNames()
         if( projectNames.includes( projectName ) ) {
             const newName = `${projectName}-${moment().unix()}`
@@ -844,7 +843,7 @@ export class EasyMina {
             [ projectName, 'projectName' ],
             [ name, 'name' ],
             [ description, 'description' ],
-            [ phrase, 'phrase' ]
+            // [ phrase, 'phrase' ]
         ]
             .forEach( a => {
                 const [ value, key ] = a
@@ -865,8 +864,14 @@ export class EasyMina {
             return [ messages, comments ]
         }
 
-        if( phrase === '' ) {
-            messages.push( `Key 'phrase' is empty. Please set a valid string.` )
+        if( encryption === true ) {
+            if( phrase === undefined ) {
+                messages.push( `Key 'phrase' is 'undefined'.` )
+            } else if( typeof phrase !== 'string' ) {
+                messages.push( `Key 'phrase' is not type of 'string'.` )
+            } else if( phrase === '' ) {
+                messages.push( `Key 'phrase' is empty. Please set a valid string.` )
+            }
         }
 
         const projectNames = this.getProjectNames()
