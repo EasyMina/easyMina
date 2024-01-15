@@ -13,6 +13,44 @@ const html = `
   </select>
     {{markdown}}
   </article>
+
+
+
+  <script type="module">
+  
+  import { MinaData } from 'https://unpkg.com/minadata@latest/dist/MinaData.js'
+
+  const elements = document
+    .querySelectorAll('[id^="req--"]')
+
+    let ids = [];
+
+    elements.forEach(element => {
+      ids.push(element.id);
+    });
+
+    ids = ids.map( a => a.split('--')[ 1 ] )
+    console.log( ids )
+
+console.log( 'A' )
+  const minaData = new MinaData()
+  console.log( 'B' )
+  minaData.init( {
+    'network': 'berkeley'
+} )
+console.log( 'C' )
+   minaData
+      .getData( {
+        'preset': 'accountBalance', 
+        'userVars': { 'publicKey': ids[ 0 ] },
+        'network': 'berkeley'
+      } )
+      .then( result => {
+        console.log( 'D' )
+        console.log( result )
+    } )
+
+</script>
 </body>
 `
 

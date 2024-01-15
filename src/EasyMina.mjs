@@ -73,14 +73,16 @@ export class EasyMina {
     #minaData
 
 
-    constructor() {
+    constructor( { encryption=true, setSecret=true, networkName=undefined } ) {
+
         this.#config = config
+        this.init( { encryption, setSecret, networkName } )
         return 
     }
 
 
-    init( cfg={ encryption: true, setSecret: true } ) {
-        const [ messages, comments ] = this.#validateInit( cfg )
+    init( { encryption=true, setSecret=true, networkName=undefined } ) {
+        const [ messages, comments ] = this.#validateInit( { encryption, setSecret, networkName } )
         printMessages( { messages, comments } )
 
         this.#encryption = new Encryption()
@@ -115,16 +117,18 @@ export class EasyMina {
         this.#state = {
             'groupName': null,
             'projectName': null,
+            networkName,
             'names': null,
             'secretString': null,
             'secretId': null,
-            'encryption': cfg['encryption']
+            encryption
         }
 
-        this.#minaData = new MinaData()
-        this.#minaData.init( {} )
+        this.#minaData = new MinaData( {
+            networkName
+        } )
 
-        if( cfg['setSecret'] ) {
+        if( setSecret ) {
             this.setSecret()
         }
 
@@ -200,10 +204,17 @@ export class EasyMina {
 
 
     exportProject( { projectName, name='', description='', phrase, encryption=true } ) {
+        const [ messages, comments ] = this.#validateExportProject( {
+            projectName, name, description, phrase, encryption
+        } )
+        printMessages( { messages, comments } )
+
+/*
         if( phrase === undefined ) {
             phrase = this.#config['importer']['localPhrase']
             console.log( `Key 'phrase' not found, chose '${phrase}' as phrase value instead.` )
         }
+*/
 
         const data = this.#projectImporter
             .createExport( { projectName } )
@@ -243,6 +254,12 @@ export class EasyMina {
 
 
     async importProject( { url, phrase, projectName, hash='' } ) {
+        const [ messages, comments ] = this.#validateImportProject( {
+            url, phrase, projectName, hash
+        } )
+        printMessages( { messages, comments } )
+
+
         const projectNames = this.getProjectNames()
         if( projectNames.includes( projectName ) ) {
             const newName = `${projectName}-${moment().unix()}`
@@ -262,6 +279,8 @@ export class EasyMina {
             type = 'url'
         } else if( url.startsWith( 'local://' ) ){
             type = 'local'
+        } else {
+            type = 'root'
         }
 
         let result
@@ -304,13 +323,34 @@ export class EasyMina {
                     process.exit( 1 )
                 }
                 break
+            case 'root':                
+            const p2 = path.basename( url )
+            // const __filename = fileURLToPath( import.meta.url )
+            // const __dirname = path.dirname( __filename )
+            // const p = `${__dirname}/import/templates/${url}.txt`
+            // const p = `./src/import/templates/${url}.txt`
+            if( fs.existsSync( p2 ) ) {
+                try {
+                    const dataurl = fs.readFileSync( p2, 'utf-8' )
+                    response = await axios.get( dataurl, { 'responseType': 'arraybuffer' } )
+                    const base64Data = response.data.toString( 'base64' )
+                    const jsonDataString = Buffer.from( base64Data, 'base64' ).toString( 'utf-8' )
+                    result = JSON.parse( jsonDataString )
+                } catch( e ) {
+                    console.log( e )
+                    process.exit( 1 )
+                }
+            } else {
+                console.log( `Path '${p}' not found.` )
+                process.exit( 1 )
+            }
+                break
             default:
                 console.log( 'Content unknown!.' )
                 process.exit( 1 )
                 break
         }
 
-    
         if( result['encrypt'] ) {
             const encrypt = new Encryption()
             result['content'] = encrypt
@@ -330,10 +370,13 @@ export class EasyMina {
         this.#typescript.addConfigs( { 
             'environment': this.#environment
         } )
+
+        return true
     }
 
 
-    async createAccounts( { names, networkName, groupName, pattern=true } ) {
+    async createAccounts( { names, groupName, pattern=true } ) {
+        const networkName = this.#state['networkName']
         const [ messages, comments ] = this.#validateCreateAccount( { 'name': 'placeholder', names, groupName, pattern, networkName } )
         printMessages( { messages, comments } )
 
@@ -345,10 +388,25 @@ export class EasyMina {
             const name = names[ i ]
 
             const spinner = ora()
-            spinner.start( name )
+            spinner.start( ` ${name}` )
             if( !missingNames.includes( name ) ) {
-                const address = await this.getAccount( { name, groupName } )
-                spinner.info( `${name} (${shortenAddress( { 'publicKey': address['publicKey']['base58'] } )})` )
+                const address = await this.getAccount( { name, groupName, checkStatus: true } )
+                deployers.push( {
+                    'filePath': address['filePath'],
+                    'publicKey': address['publicKey']['base58'],
+                    'explorer': address['explorer']
+                } )
+
+                const durationInMilliseconds = moment()
+                    .diff( moment.unix( address['createdUnix'] ) )
+
+                const duration = moment.duration( durationInMilliseconds )
+                const durationHumanize = duration.humanize()
+
+                const symbol = address['balance'] === null ? '🟨' : '🟩'
+                spinner.info( ` ${symbol} ${name} (${shortenAddress( { 'publicKey': address['publicKey']['base58'] } )})` )
+                console.log( `   Balance: ${address['balance']}, Nonce: ${address['nonce']}, Created ${durationHumanize} ago.`, )
+                console.log( '   Explorer:', address['explorer'])
             } else {
                 const deployer = await this.#createAccount( {
                     name,
@@ -357,31 +415,17 @@ export class EasyMina {
                     networkName,
                     spinner
                 } )
-                spinner.succeed( `${name} (${deployer['header']['addressShort']})` )
+                deployers.push( {
+                    'filePath': deployer['filePath'],
+                    'publicKey': deployer['header']['addressFull'],
+                    'explorer': deployer['header']['explorer']
+                } )
+                spinner.succeed( ` ✨ ${name} (${deployer['header']['addressShort']})` )
+                console.log( '   Faucet:', deployer['header']['faucetTxHashExplorer'])
+                console.log( '   Explorer:', deployer['header']['explorer'])
             }
         }
 
-/*
-        //const spinner = ora( 'Loading' )
-        //spinner.start()
-        for( let i = 0; i < missingNames.length; i++ ) {
-            // console.log( `${i}`)
-            const [ name, groupName ] = missingNames[ i ]
-            // const spinner = ora( `create ${name} ` )
-            // spinner.start()
-            // spinner.color = 'yellow'
-            // spinner.text = name
-            const deployer = await this.createAccount( {
-                name,
-                groupName,
-                pattern,
-                networkName
-            } )
-            // spinner.color = 'green'
-            // spinner.succeed( `${name}` )
-            // spinner.succeed()
-        }
-*/
         return deployers
     }
 
@@ -425,7 +469,7 @@ export class EasyMina {
             'utf-8'
         )
 
-        return deployer
+        return { 'filePath': path, ...deployer }
     }
 
 
@@ -518,6 +562,7 @@ export class EasyMina {
 
     async getAccount( { name, groupName, checkStatus=false, strict=false } ) {
         const accounts = this.getAccounts()
+
         const [ messages, comments ] = this.#validateGetAccount( { name, groupName, accounts, checkStatus, strict } )
         printMessages( { messages, comments } )
 
@@ -534,6 +579,7 @@ export class EasyMina {
             },
             'balance': null,
             'nonce': null,
+            'createdUnix': null,
             'explorer': null
         }
 
@@ -544,14 +590,34 @@ export class EasyMina {
             } ) 
 
             if( data['status']['code'] !== 200 ) {
-                console.log( `${data['status']['message']} Check for pending transactions: ${selection['faucetTxHashExplorer']}.` )
+                strict ? console.log( `${data['status']['message']} Check for pending transactions: ${selection['faucetTxHashExplorer']}.` ) : ''
                 strict ? process.exit( 1 ) : ''
             } else if( !data['success'] ) {
-                console.log( `Balance not found. Check for pending transactions: ${selection['faucetTxHashExplorer']}.` )
+                strict ? console.log( `Balance not found. Check for pending transactions: ${selection['faucetTxHashExplorer']}.` ) : ''
                 strict ? process.exit( 1 ) : ''
             } else {
-                result['balance'] = data['balance']
-                result['nonce'] = data['nonce']
+
+                const tmp = [
+                    [ data['balance'], 'balance' ],
+                    [ data['nonce'], 'nonce' ]
+                ]
+                    .forEach( a => {
+                        const [ value, key ] = a
+                        if( value === undefined ) {
+                            result[ key ] = NaN
+                        } else if( typeof value !== 'number' ) {
+                            try {
+                                result[ key ] = Number( value )
+                                if( key === 'balance' ) {
+                                    result[ key ] = result[ key ] / 1000000000
+                                }
+                            } catch( e ) {
+                                result[ key ] = NaN
+                            }
+                        } else {
+                            result[ key ] = value
+                        }
+                    } )
             }
         }
 
@@ -564,6 +630,7 @@ export class EasyMina {
         result['publicKey']['field']  = result['privateKey']['field'].toPublicKey()
         result['publicKey']['base58'] = result['publicKey']['field'].toBase58()
 
+        result['createdUnix'] = credential['header']['createdUnix']
         result['explorer'] = credential['header']['explorer']
 
         return result
@@ -576,8 +643,7 @@ export class EasyMina {
 
         const data = await this.#minaData.getData( { 
             'preset': 'accountBalance', 
-            'userVars': { publicKey },
-            'network': 'berkeley'
+            'userVars': { publicKey }
         } )
 
         const account = {
@@ -622,10 +688,11 @@ export class EasyMina {
     }
 
 
-    async requestContract( { name, networkName, deployer, encrypt=true, sourcePath=null } ) {
+    async requestContract( { name, deployer, encrypt=true, sourcePath=null } ) {
+        const networkName = this.#state['networkName']
         const contractAbsolutePath = path.resolve(
-            path.dirname( process.argv[ 1 ] ), 
-            `${sourcePath}`
+            process.argv[ 1 ], 
+            `./../${sourcePath}`
         )
 
         const [ messages, comments ] = this.#contract
@@ -687,7 +754,7 @@ export class EasyMina {
                         .forEach( msg => {
                             switch( msg['statusText'] ) {
                                 case "Couldn't send zkApp command: [\"Insufficient_replace_fee\"]":
-                                    console.log( 'Did you cu')
+                                    console.log( 'Try an diffrent an account.')
                                     break
                                 default:
                                     break
@@ -720,6 +787,8 @@ export class EasyMina {
 
 
     startServer( { projectName } ) {
+        const [ messages, comments ] = this.#validateStartServer( { projectName } )
+        printMessages( { messages, comments } )
         // console.log( `Start server for '${this.#state['projectName']}'.` )
         const server = new Server( {
             'server': this.#config['server'],
@@ -735,7 +804,12 @@ export class EasyMina {
             } )
             .start()
 
-        return true
+        const url = `http://localhost:${this.#config['server']['port']}`
+        let msg = ''
+        msg += `EasyMina Server is running on port ${url}`
+        console.log( msg )
+
+        return url
     }
 
 
@@ -762,24 +836,128 @@ export class EasyMina {
     }
 
 
-    #validateInit( cfg ) {
+    #validateExportProject( { projectName, name, description, phrase, encryption } ) {
         const messages = []
         const comments = []
 
-        if( cfg === undefined ) {
-            messages.push( `Key 'cfg' is type of 'undefined'.` )
-        } else if( cfg.constructor !== Object ) {
-            messages.push( `Key 'cfg' with the value '${cfg}' is not type of 'object'.` )
+        const tmp = [
+            [ projectName, 'projectName' ],
+            [ name, 'name' ],
+            [ description, 'description' ],
+            [ phrase, 'phrase' ]
+        ]
+            .forEach( a => {
+                const [ value, key ] = a
+                if( value === undefined ) {
+                    messages.push( `Key '${key}' is undefined.` )
+                } else if( typeof value !== 'string' ) {
+                    messages.push( `Key '${key}' is not type of 'string'.` )
+                }
+            } )
+
+        if( encryption === undefined ) {
+            messages.push( `Key 'encryption' is undefined.` )
+        } else if( typeof encryption !== 'boolean' ) {
+            messages.push( `Key 'encryption' is not type of 'boolean'.` )
         }
 
         if( messages.length !== 0 ) {
             return [ messages, comments ]
         }
 
-        if( !Object.hasOwn( cfg, 'encryption' ) ) {
-            messages.push( `Key 'encryption' with the type of 'boolean' is missing.` )
-        } else if( typeof cfg['encryption'] !== 'boolean' ) {
-            messages.push( `Key 'encryption' with the value '${cfg['encrpytion']}' is not type of 'boolean'.` )
+        if( phrase === '' ) {
+            messages.push( `Key 'phrase' is empty. Please set a valid string.` )
+        }
+
+        const projectNames = this.getProjectNames()
+        if( !projectNames.includes( projectName ) ) {
+            messages.push( `Key 'projectName' with the value '${projectName}' is not valid. Choose from ${projectNames.map( a => `'${a}'`).join( ', ' )} instead.` )
+        }
+
+        return [ messages, comments ]
+    }
+
+
+    #validateImportProject( { url, phrase, projectName, hash } ) {
+        const messages = []
+        const comments = []
+
+        const tmp = [
+            [ url, 'url' ],
+            [ projectName, 'projectName' ],
+            [ hash, 'hash' ]
+        ]
+            .forEach( a => {
+                const [ value, key ] = a
+                if( value === undefined ) {
+                    messages.push( `Key '${key}' is undefined.` )
+                } else if( typeof value !== 'string' ) {
+                    messages.push( `Key '${key}' is not type of 'string'.` )
+                }
+            } )
+
+        if( phrase === undefined ) {
+        } else if( typeof phrase !== 'string' ) {
+            messages.push( `Key 'phrase' is not type of 'string' or 'undefined'.` )
+        }
+
+        return [ messages, comments ]
+    }
+
+
+    #validateStartServer( { projectName } ) {
+        const messages = []
+        const comments = []
+
+        const projectNames = this.getProjectNames()
+        if( projectName === undefined ) {
+            messages.push( `Key 'projectName' is 'undefined'.` )
+        } else if( typeof projectName !== 'string' ) {
+            messages.push( `Key 'projectName' is not type of 'string'.` )
+        } else if( !projectNames.includes( projectName ) ) {
+            messages.push( `Key 'projectName' with the value '${projectName}' is not valid. Choose from ${projectNames.map( a => `'${a}'`).join( ', ')} instead.` )
+        }
+
+        return [ messages, comments ]
+    }
+
+
+    #validateInit( { encryption, setSecret, networkName } ) {
+        const messages = []
+        const comments = []
+
+        const tmp = [
+            [ encryption, 'encryption', 'boolean' ],
+            [ setSecret, 'setSecret', 'boolean' ],
+            [ networkName, 'networkName', 'string' ],
+        ]
+            .forEach( a => {
+                const [ value, key, type ] = a 
+                if( typeof value === undefined ) {
+                    messages.push( `Key '${key}' with the type of '${type}' is missing.` )
+                } 
+
+                switch( type ) {
+                    case 'boolean':
+                        if( typeof value !== 'boolean' ) {
+                            messages.push( `Key '${key}' with the type of 'boolean' is missing.` )
+                        } 
+                        break
+                    case 'string':
+                        if( typeof value !== 'string' ) {
+                            messages.push( `Key '${key}' with the type of 'string' is missing.` )
+                        } 
+                        break
+                    default:
+                        break
+                }
+            } )
+
+
+        if( typeof networkName === 'string' ) {
+            if( !this.#config['networks']['supported'].includes( networkName ) ) {
+                messages.push( `Key 'networkName' with the value '${networkName} is not a valid input. Use ${this.#config['networks']['supported'].map( a => `'${a}'`).join( ', ' )}' instead.` )
+            }
         }
 
         return [ messages, comments ]
@@ -797,7 +975,9 @@ export class EasyMina {
         const tmp = tests
             .forEach( a => {
                 const [ value, key, regexKey ] = a
-                if( typeof value !== 'string' ) {
+                if( value === undefined ) {
+                    messages.push( `Key '${key}' is 'undefined'.` )
+                } else if( typeof value !== 'string' ) {
                     messages.push( `Key '${key}' is not type of string` )
                 } else if( !this.#config['validate']['values'][ regexKey ]['regex'].test( value ) ) {
                     messages.push( `Key '${key}' with the value '${value}' has not the expected pattern. ${this.#config['validate']['values'][ regexKey ]['description']}` )
@@ -815,7 +995,7 @@ export class EasyMina {
                     if( typeof value !== 'string' ) {
                         messages.push( `Key 'names' with the value '${value}' is not type of string.` )
                     } else if( !this.#config['validate']['values']['stringsAndDash']['regex'].test( value ) ) {
-                        messages.push( `Key '${key}' with the value '${value}' has not the expected pattern. ${this.#config['validate']['values']['stringsAndDash']['description']}` )
+                        messages.push( `Key 'names' with the value '${value}' has not the expected pattern. ${this.#config['validate']['values']['stringsAndDash']['description']}` )
                     }
 
                 } )
@@ -954,10 +1134,9 @@ export class EasyMina {
             messages.push( `Key 'response' with the key/value pair 'isSuccess' is not type of 'boolean'.` )
         }
 
-        const test = [ [ 'data' ], [ 'hash' ] ]
-            .forEach( a => {
-                const [ key ] = a
-                if( !Object.hasOwn( verificationKey[ key ], key ) ) {
+        const test = [ 'data', 'hash' ]
+            .forEach( key => {
+                if( !Object.hasOwn( verificationKey, key ) ) {
                     messages.push( `Key 'verificationKey' has not a key/value pair '${key}'.` )
                 }
             } )

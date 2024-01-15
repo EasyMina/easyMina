@@ -1,0 +1,58 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="github-markdown.css">
+<style>
+  {{style}}
+</style>
+<body>
+  <article class="markdown-body">
+  <label for="selectOption">Select an option:</label>
+  <select id="selectOption">
+      <option value="berkeley">Berkeley</option>
+      <option value="testworld2">Testworld2</option>
+  </select>
+    {{markdown}}
+  </article>
+
+
+
+  <script type="module">
+  
+  import { MinaData } from 'https://unpkg.com/minadata@latest/dist/MinaData.js'
+
+  const elements = document
+    .querySelectorAll('[id^="req--"]')
+
+    let ids = [];
+
+    elements.forEach(element => {
+      ids.push(element.id);
+    });
+
+    ids = ids.map( a => a.split('--')[ 1 ] )
+    console.log( ids )
+
+
+
+async function main() {
+    const minaData = new MinaData( {
+        'network': 'berkeley'
+    } )
+
+    console.log( 'B' )
+    const result = await minaData
+        .getData( {
+            'preset': 'accountBalance', 
+            'userVars': { 'publicKey': 'B62qmvQWpSJSKdobgrAkuASgyV22GYFkmtC6enmimbsCxZSFyjEZbtt' },
+            'network': 'berkeley'
+        } )
+
+    console.log( result )
+}
+
+main()
+    .then( a => console.log( a ) )
+    .catch( e => console.log( e ) )
+
+
+</script>
+</body>

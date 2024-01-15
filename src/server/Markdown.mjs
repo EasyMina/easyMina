@@ -176,7 +176,7 @@ export class Markdown {
 
 
     #createAccountGroupTable( { groupName, accountGroup } ) {
-        const columns = [ 'Name', 'Address', 'Balance', 'Nonce', 'Explorer' ]
+        const columns = [ 'Name', 'Address', 'Network', 'Balance', 'Nonce', 'Faucet' ]
 
         let strs = ''
         strs += Object
@@ -197,13 +197,29 @@ export class Markdown {
                                 str = value['name']
                                 break
                             case 'Address':
-                                str = value['addressShort']
+                                str += `[`
+                                str += value['addressShort']
+                                str += `]`
+                                str += `(${value['explorer']})`
+                                // str = value['addressShort']
+                                break
+                            case 'Network':
+                                str = value['networkName']
                                 break
                             case 'Balance': 
                                 str = ''
+                                str += `<div id="req--${value['addressFull']}">`
+                                str += ''
+                                str += '</div>'
                                 break
                             case 'Nonce': 
-                                str = ''
+                                // str = '<div>5</div>'
+                                break
+                            case 'Faucet': 
+                                str += `[`
+                                str += `X`
+                                str += `]`
+                                str += `(${value['faucetTxHashExplorer']})`
                                 break
                             case 'Explorer':
                                 const parsedUrl = url.parse( value['explorer'] )
@@ -213,8 +229,7 @@ export class Markdown {
                                 }
 
                                 str += `[`
-                                str += `${hostname} `
-                                str += `(${value['networkName']})`
+                                str += `X`
                                 str += `]`
                                 str += `(${value['explorer']})`
                                 break

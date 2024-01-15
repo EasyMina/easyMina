@@ -8,6 +8,7 @@ import fs from 'fs'
 
 import { exec } from 'child_process'
 import util from 'util'
+import open from 'open'
 
 
 export class CLI {
@@ -16,10 +17,10 @@ export class CLI {
 
     constructor() {
         this.#config = {}
-        this.#easyMina = new EasyMina()
-        this.#easyMina.init( { 
+        this.#easyMina = new EasyMina( { 
             encryption: true,
-            setSecret: false
+            setSecret: false,
+            networkName: 'berkeley'
         } )
 
         return true
@@ -34,7 +35,7 @@ export class CLI {
 
         await this.#checkDeployer()
         await this.#checkProject()
-        this.#easyMina.createTsConfigs()
+        await this.#checkTsConfig() 
 
         console.log( '' )
         await this.#isOkMenu()
@@ -135,8 +136,8 @@ export class CLI {
               name: 'names',
               message: 'Enter names (comma-separated):',
               validate: function (input) {
-                const namesArray = input.split(',').map(name => name.trim());
-                return namesArray.length > 0 ? true : 'Please enter at least one name.';
+                const namesArray = input.split(',').map(name => name.trim())
+                return namesArray.length > 0 ? true : 'Please enter at least one name.'
               },
             },
             {
@@ -144,7 +145,7 @@ export class CLI {
               name: 'groupName',
               message: 'Enter the group name:',
               validate: function (input) {
-                return input.trim() !== '' ? true : 'Please enter a non-empty group name.';
+                return input.trim() !== '' ? true : 'Please enter a non-empty group name.'
               },
             }
         ]
@@ -177,7 +178,8 @@ export class CLI {
         ]
 
         const { projectName } = await inquirer.prompt( questions )
-        this.#easyMina.startServer( { projectName } )
+        const url = this.#easyMina.startServer( { projectName } )
+        open( url )
 
         return true
     }
@@ -220,14 +222,28 @@ export class CLI {
         if( encryption ) {
             const resp = await inquirer.prompt( [
                 {
-                    type: 'input',
+                    type: 'password',
                     name: 'phrase',
                     message: 'Enter an export phrase:',
                     validate: function (input) {
                       return input.trim() !== '' ? true : 'Please enter a non-empty export phrase.';
                     },
-                  }
+                },
+                {
+                    type: 'password',
+                    name: 'phraseRepeat',
+                    message: 'Repeat your export phrase:',
+                    validate: function (input) {
+                      return input.trim() !== '' ? true : 'Please enter a non-empty export phrase.';
+                    },
+                }
             ] )
+
+            if( resp.phrase !== resp.phraseRepeat ) {
+                console.log( 'The phrases are not identical.' )
+                process.exit( 1 )
+            }
+
             phrase = resp['phrase']
         } 
 
@@ -241,14 +257,34 @@ export class CLI {
             {
                 'type': 'list',
                 'name': 'type',
-                'choices': [ 'url', 'dataurl' ]
+                'choices': [ 'url', 'local', 'dataurl (experimental)' ]
             }
         ] )
 
         let  url
         switch( type ) {
+            case 'local': 
+            const folderContents = fs.readdirSync( `${process.cwd()}` )
+                .filter( a => a.indexOf( '--') !== -1 && a.endsWith( '.txt' ) )
+
+                if( folderContents.length === 0 ) {
+                    console.log( 'No importable projects found.' )
+                    process.exit( 1 )
+                }
+                
+                const resp1 = await inquirer.prompt( [
+                    {
+                        'type': 'list',
+                        'name': 'url',
+                        'choices': folderContents,
+                        'message': 'Filename: : ',
+                        'default': ''
+                    }
+                ] )
+                url = resp1.url
+                break
             case 'url':
-                const resp = await inquirer.prompt( [
+                const res2 = await inquirer.prompt( [
                     {
                         'type': 'input',
                         'name': 'url',
@@ -256,7 +292,7 @@ export class CLI {
                         'default': ''
                     }
                 ] )
-                url = resp.url
+                url = resp2.url
                 break
             case 'dataurl':
                 function questionAsync( question ) {
@@ -276,13 +312,13 @@ export class CLI {
                     } )
                 }
 
-                url =  await questionAsync('Enter a long data URL string:\n')
+                url =  await questionAsync( 'Enter a long data URL string:\n' )
                 break
         }
 
         const questions = [
             {
-                'type': 'input',
+                'type': 'password',
                 'name': 'phrase',
                 'message': 'Enter your decryption phrase:',
                 'default': ''
@@ -310,7 +346,7 @@ export class CLI {
         const execAsync = util.promisify( exec )
         const p = `${process.cwd()}/package.json`
         if( fs.existsSync( p ) ) {
-            const msg = '✔ Npm package.json found.'
+            const msg = '✔ package.json file found.'
             const msgColor = chalk.green( msg )
             console.log( msgColor )
             return true
@@ -325,11 +361,10 @@ export class CLI {
         ]
 
         const { npm } = await inquirer.prompt( questions )
-        await execAsync( 'npm init -y && npm i easymina' )
+        await execAsync( 'npm init -y --type=module && npm i o1js easymina' )
 
         return true
     }
-
 
 
     async #checkProject() {
@@ -341,8 +376,23 @@ export class CLI {
             return true
         }
 
-        console.log( `No project found. Would you like to load an example?` )
+        console.log( '' )
+        const msg = `No project found. Would you like to load an example?`
+        const msgColor = chalk.green( msg )
+        console.log( msgColor )
+
         await this.#addTemplate()
+        return true
+    }
+
+
+    async #checkTsConfig() {
+        this.#easyMina.createTsConfigs()
+
+        const msg = `✔ tsconfig.json files found.`
+        const msgColor = chalk.green( msg )
+        console.log( msgColor )
+
         return true
     }
 
@@ -370,7 +420,10 @@ export class CLI {
             return true
         }
 
-        console.log( 'No accounts found. Should test accounts be created?' )
+        console.log( '' )
+        const msg = `No accounts found. Should test accounts be created?`
+        const msgColor = chalk.green( msg )
+        console.log( msgColor )
         const response = await inquirer.prompt( [
             {
                 'type': 'confirm',
@@ -389,6 +442,8 @@ export class CLI {
             'networkName': 'berkeley',
             'groupName': 'a'
         } )
+
+        console.log( '' )
 
         return response
     }
@@ -425,7 +480,7 @@ export class CLI {
                 }
             ] )
 
-            !response['sure'] ? process.exit( 1 ) : ''
+            !response['sure'] ? process.exit( 1 ) : console.log( '' )
             this.#easyMina.setEnvironment()
             return true
         }

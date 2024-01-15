@@ -39,6 +39,7 @@ export class Account {
                 'addressFull': null,
                 'explorer': null,
                 'created': null,
+                'createdUnix': null,
                 'faucetTxHash': null,
                 'faucetTxHashExplorer': null,
                 encrypt
@@ -53,7 +54,9 @@ export class Account {
             'disclaimer': null
         }
 
-        struct['header']['created'] = moment().format( 'YYYY-MM-DD hh:mm:ss A' )
+        const mm = moment()
+        struct['header']['created'] = mm.format( 'YYYY-MM-DD hh:mm:ss A' )
+        struct['header']['createdUnix'] = mm.unix()
 
         struct['header']['addressShort'] = `${deployer['publicKey'].slice( 0, 8 )}...${deployer['publicKey'].slice( -4 )}`
         struct['header']['addressFull'] = deployer['publicKey']
@@ -199,7 +202,7 @@ export class Account {
             // spinner.start( `${name} (${index})` )
             while( loop ) {
                 if( index % 50 === 0 ) {
-                    spinner.text = `${name} (${index})`
+                    spinner.text = ` ${name} (${index})`
                     spinner.render()
                 }
 

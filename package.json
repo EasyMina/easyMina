@@ -1,15 +1,17 @@
 {
   "name": "easymina",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "src/EasyMina.mjs",
+  "type": "module",
   "directories": {
     "test": "tests"
   },
   "bin": {
-    "easymina": "bin/easymina"
+    "easymina": "bin/easymina.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "getting-started/1": "tsc -p projects/getting-started/tsconfig.json && node projects/getting-started/backend/1-deploy-smart-contract.mjs"
   },
   "keywords": [
     "Mina",
@@ -23,9 +25,10 @@
     "figlet": "^1.7.0",
     "inquirer": "^9.2.12",
     "marked": "^11.1.0",
-    "minadata": "^0.0.94",
+    "minadata": "^1.0.1",
     "moment": "^2.29.4",
     "o1js": "^0.14.2",
+    "open": "^10.0.3",
     "patternfinder": "^0.0.1"
   },
   "description": ""

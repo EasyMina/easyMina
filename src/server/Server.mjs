@@ -50,12 +50,7 @@ export class Server {
     start() {
         this.#app.listen(
             this.#config['server']['port'], 
-            () => {
-                let msg = ''
-                msg += `EasyMina Server is running on port `
-                msg += `http://localhost:${this.#config['server']['port']}`
-                console.log( msg )
-            } 
+            () => {} 
         )
 
         return true

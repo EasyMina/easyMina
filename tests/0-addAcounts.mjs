@@ -1,13 +1,12 @@
 import { EasyMina } from './../src/EasyMina.mjs'
 
-const easyMina = new EasyMina()
-easyMina
-    .init()
-    .setAccountGroup( 'test-berkeley' )
-    .setProjectName( 'ABC-Project' ) 
+const easyMina = new EasyMina( {
+    'networkName': 'berkeley'
+} )
 
-await easyMina.newPersonas( { 
-    names: [ 'alice', 'bob', 'cetris' ]
+await easyMina.createAccounts( { 
+    'names': [ 'alice', 'bob', 'charlie' ],
+    'groupName': 'a'
 } ) 
 
 /*
