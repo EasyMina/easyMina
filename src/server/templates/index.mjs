@@ -10,9 +10,9 @@ const frontend = `
 `
 
 const overview = `
-# Cheatsheet
+{{projects}}
 
-<details open>
+<details closed>
 <summary>
 <h2>Credentials</h2>
 </summary>  
@@ -36,14 +36,7 @@ const overview = `
 </details>
 
 
-<details open>
-<summary>
-<h2>Projects</h2>
-</summary>  
 
-{{projects}}
-
-</details>
 `
 
 export { frontend, overview }

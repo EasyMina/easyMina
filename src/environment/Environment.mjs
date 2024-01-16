@@ -359,7 +359,7 @@ export class Environment {
                         abb[ key ] = this.#getScriptsByProjectName( {
                             projectName,
                             cmds,
-                            key
+                            'folderKey': key
                         } )
                         return abb
                     }, {} )
@@ -391,15 +391,15 @@ export class Environment {
     }
 
 
-    #getScriptsByProjectName( { projectName, cmds, key } ) {
+    #getScriptsByProjectName( { projectName, cmds, folderKey } ) {
         const path = [
             this.#config['validate']['folders']['workdir']['name'],
             projectName,
-            this.#config['validate']['folders']['workdir']['subfolders']['subfolders'][ key ]['name']
+            this.#config['validate']['folders']['workdir']['subfolders']['subfolders'][ folderKey ]['name']
         ]
             .join( '/' )
 
-        const result = cmds
+        let result = cmds
             .reduce( ( acc, a, index ) => {
                 const [ search, key ] = a 
                 fs
@@ -425,6 +425,77 @@ export class Environment {
                     } )
                 return acc
             }, {} )
+
+        if( folderKey === 'backend' ) {
+            result = Object
+                .entries( result )
+                .reduce( ( acc, a, index, all ) => {
+                    const [ key, value ] = a
+                    if( /^[0-9]-/.test( key ) ) {
+                        const id = key.split( '-' )[ 0 ]
+                        acc['tmp'].push( id )
+                        let idFull = ''
+                        idFull += `em/${projectName}/`
+                        idFull += acc['tmp'].filter( b => b === id ).join( '' )
+                        
+                        value['npm'] = ''
+                        value['npm'] += `npm run `
+                        value['npm'] += idFull
+
+                        if( value['md'] !== '' ) {
+                            value['mdUrl'] = `${idFull.replaceAll('/', '-')}.md`
+                        } else {
+                            value['mdUrl'] = ''
+                        }
+                        
+
+                    } else {
+                        value['npm'] = ''
+                        value['mdUrl'] = ''
+                    }
+                    acc['result'].push( [ key, value ] )
+                    if( all.length - 1 === index ) {
+                        acc = acc['result']
+                    }
+                    return acc
+                }, { 'tmp': [], 'result': [] } )
+                .reduce( ( acc, a, index ) => {
+                    const [ key, value ] = a
+                    acc[ key ] = value
+                    return acc
+                }, {} )
+        }
+
+        if( folderKey === 'frontend' ) {
+            const search = [
+                `${this.#config['validate']['folders']['workdir']['name']}`,
+                `${projectName}`,
+                `${this.#config['validate']['folders']['workdir']['subfolders']['subfolders']['frontend']['name']}`
+            ]
+                .join( '/' )
+
+            result = Object
+                .entries( result )
+                .reduce( ( acc, a, index ) => {
+                    const [ key, value ] = a
+                    acc[ key ] = [
+                        [ 'source', value['source'] ],
+                        [ 'md', value['md'] ]
+                    ]
+                        .reduce( ( abb, b, rindex ) => {
+                            const [ _key, _value ] = b
+                            abb[ _key ] = _value
+                            abb[ _key + 'Url' ] = _value.substring(
+                                _value.indexOf( search ) + search.length + 1,
+                                _value.length
+                            )
+
+                            return abb
+                        }, {} )
+
+                    return acc
+                }, {} )
+        }
 
         return result
     }

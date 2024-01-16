@@ -5,11 +5,6 @@ const html = `
 </style>
 <body>
   <article class="markdown-body">
-  <label for="selectOption">Select an option:</label>
-  <select id="selectOption">
-      <option value="berkeley">Berkeley</option>
-      <option value="testworld2">Testworld2</option>
-  </select>
     {{markdown}}
   </article>
 
@@ -22,47 +17,58 @@ const html = `
       'networkName': 'berkeley'
     } )
 
-    const all = await Promise.all(
-      ids.map( async( publicKey ) => {
-        const result = await minaData.getData( {
-          'preset': 'accountBalance', 
-          'userVars': { publicKey }
+    const chunkSize = 20
+    const data = ids
+
+    const groups = data
+      .map( ( a, i ) => i % chunkSize === 0 ? data.slice( i, i + chunkSize ) : null )
+      .filter( a => a )
+
+    for( let i = 0; i < groups.length; i++ ) {
+      const group = groups[ i ]
+      const all = await Promise.all(
+        group.map( async( publicKey ) => {
+          const result = await minaData.getData( {
+            'preset': 'accountBalance', 
+            'userVars': { publicKey }
+          } )
+          return { publicKey, ...result }
         } )
-        return { publicKey, ...result }
-      } )
-    )
+      )
+  
+      all
+        .forEach( response => {
+          try {
+            console.log( response )
+            // response['data']['account']['total]
+  
+            let idStatus = ''
+            idStatus += 'status--'
+            idStatus += response['publicKey']
+            const elementStatus = document.getElementById( idStatus )
+            elementStatus.innerHTML = ( response['data']['account'] !== null ) ? '🟩' : '🟨'
+  
+            let id = ''
+            id += 'balance--'
+            id += response['publicKey']
+            const element = document.getElementById( id )
+            const balance = Number.parseInt( response['data']['account']['balance']['total'] ) / 1000000000
+            element.innerHTML = balance
+  
+            let idNonce = ''
+            idNonce += 'nonce--'
+            idNonce += response['publicKey']
+            const elementNonce = document.getElementById( idNonce )
+            elementNonce.innerHTML = response['data']['account']['nonce']
+  
+          } catch( e ) {
+            console.log( e )
+          }
+        } )
+    }
 
-    all
-      .forEach( response => {
-        try {
-          console.log( response )
-          // response['data']['account']['total]
+ 
 
-          let idStatus = ''
-          idStatus += 'status--'
-          idStatus += response['publicKey']
-          const elementStatus = document.getElementById( idStatus )
-          elementStatus.innerHTML = ( response['data']['account'] !== null ) ? '🟩' : '🟨'
-
-          let id = ''
-          id += 'balance--'
-          id += response['publicKey']
-          const element = document.getElementById( id )
-          const balance = Number.parseInt( response['data']['account']['balance']['total'] ) / 1000000000
-          element.innerHTML = balance
-
-          let idNonce = ''
-          idNonce += 'nonce--'
-          idNonce += response['publicKey']
-          const elementNonce = document.getElementById( idNonce )
-          elementNonce.innerHTML = response['data']['account']['nonce']
-
-        } catch( e ) {
-          console.log( e )
-        }
-      } )
-
-    console.log( 'all', all )
     return true
   }
 

@@ -13,16 +13,19 @@ export const config = {
                 'route': '/public'
             },
             'getAccounts': {
-                'route': '/getAccounts'
+                'route': '/api/getAccounts'
             },
             'getContracts': {
-                'route': '/getContracts'
+                'route': '/api/getContracts'
+            },
+            'getContractSourceCode': {
+                'route': '/api/getContractSourceCode'
             },
             'getLocalO1js': {
-                'route': '/getLocalO1js'
+                'route': '/api/getLocalO1js'
             },
             'getSmartContracts': {
-                'route': '/getSmartContracts'
+                'route': '/api/getSmartContracts'
             }
         }
     },

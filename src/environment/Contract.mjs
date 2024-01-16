@@ -34,6 +34,7 @@ export class Contract {
                 'addressFull': null,
                 'explorer': null,
                 'created': null,
+                'createdUnix': null,
                 'deployer': null,
                 'sourceCode': null,
                 encrypt
@@ -74,7 +75,9 @@ export class Contract {
             }, '' )
         result['header']['methods'] = await environment
             .getScriptMethods( { contractAbsolutePath } )
-        result['header']['created'] = moment().format( 'YYYY-MM-DD hh:mm:ss A' )
+        const mom = moment()
+        result['header']['created'] = mom.format( 'YYYY-MM-DD hh:mm:ss A' )
+        result['header']['createdUnix'] = mom.unix()
         const publicKey = result['body']['publicKey']['base58']
         result['header']['addressShort'] = shortenAddress( { publicKey } )
         result['header']['addressFull'] = publicKey

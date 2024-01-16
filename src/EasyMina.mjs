@@ -799,7 +799,8 @@ export class EasyMina {
                 projectName,
                 'environment': this.#environment,
                 'account': this.#account, 
-                'encrypt': this.#encryption
+                'encrypt': this.#encryption,
+                'contract': this.#contract
             } )
             .start()
 

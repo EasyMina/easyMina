@@ -19,6 +19,7 @@ export class Server {
     #container
     #environment
     #account
+    #contract
     #encrypt
     #markdown
     
@@ -29,12 +30,13 @@ export class Server {
     }
 
 
-    init( { projectName, environment, account, encrypt } ) {
+    init( { projectName, environment, account, contract, encrypt } ) {
         this.#app = express()
         this.#state = this.#addState( { projectName } )
         this.#container = this.#addContainer()
         this.#environment = environment
         this.#account = account
+        this.#contract = contract
         this.#encrypt = encrypt
         this.#markdown = new Markdown()
 
@@ -158,26 +160,81 @@ export class Server {
         // this.#addRoutePublic()
 
         this.#addApiGetAccounts()
-        this.#addApiGetContracts()
+        this.#addApiGetDeployedContracts( { projectName } )
         this.#addApiGetLocalO1js()
 
-        this.#addRouteIndex()
+        this.#addRouteIndex( { projectName } )
+        this.#addRouteMarkdownContractScripts( { projectName } )
+        this.#addRouteFrontend( { projectName } )
         // this.#addRouteGetSmartContracts()
         
         return true
     }
 
 
-    #addRouteIndex() {
+    #addRouteFrontend( { projectName } ) {
+        let folderPath = ''
+        folderPath += this.#state['absoluteRoot'] + '/'
+        folderPath += `${this.#config['validate']['folders']['workdir']['name']}/`
+        folderPath += projectName + '/'
+        folderPath += 'frontend'
+
+        this.#app.use(
+            '/', 
+            express.static( folderPath )
+        )
+
+        return true
+    }
+
+    #addRouteMarkdownContractScripts( { projectName } ) {
+        const scripts = this.#environment
+            .getScripts()
+
+        Object
+            .entries( scripts[ projectName ]['backend'] )
+            .filter( a => a[ 1 ]['mdUrl'] !== '' )
+            .forEach( a => {
+                const [ key, value ] = a
+                const file = value['mdUrl']
+                this.#app.get(
+                    `/${file}`, 
+                    ( req, res ) => {
+                        let path = ''
+                        path += this.#state['absoluteRoot'] + '/'
+                        path += value['md']
+
+                        const _insert = fs.readFileSync( path, 'utf-8' )
+                        const html = this.#container
+                            .replace( '{{markdown}}', marked( _insert ) )
+
+                        res.send( html )
+                    }
+                  )
+            } )
+
+        return true
+    }
+
+
+    #addRouteIndex( { projectName } ) {
         const accountTables = this.#markdown
             .createAccountGroupTables( { 
                 'environment': this.#environment,
                 'account': this.#account, 
                 'encrypt': this.#encrypt
-            } )   
+            } ) 
+        
+        const deployedContractTables = this.#markdown
+            .createDeployedContractGroupTables( {
+                'environment': this.#environment,
+                'contract': this.#contract, 
+                'encrypt': this.#encrypt
+            } )
             
         const projectTables = this.#markdown
             .createProjects( { 
+                projectName,
                 'environment': this.#environment
              } )
         
@@ -189,6 +246,7 @@ export class Server {
             ( req, res ) => {
                 const _insert = overview
                     .replace( '{{accountTables}}', accountTables )
+                    .replace( '{{deployedContracts}}', deployedContractTables )
                     .replace( '{{projects}}', projectTables )
                 const html = this.#container
                     .replace( '{{markdown}}', marked( _insert ) )
@@ -245,20 +303,63 @@ export class Server {
     }
 
 
-    #addApiGetContracts() {
+    #addApiGetDeployedContracts( { projectName } ) {
         this.#app.get(
             this.#config['server']['routes']['getContracts']['route'],
             ( req, res ) => { 
-                const contracts = this.#environment.getContracts()
-                res.json( { 'data': contracts } ) 
+                const contracts = this.#environment.getDeployedContracts( {
+                    'contract': this.#contract, 
+                    'encrypt': this.#encrypt
+                } )
+                res.json( { 'data': Object.keys( contracts[ projectName ] ) } ) 
             }
         )
+
+        this.#app.use( (req, res, next) => {
+            res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+            res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+            next()
+        } )
+
+        this.#app.get(
+            `${this.#config['server']['routes']['getContractSourceCode']['route']}/:contractName`, 
+            ( req, res ) => {
+                const contracts = this.#environment.getDeployedContracts( {
+                    'contract': this.#contract, 
+                    'encrypt': this.#encrypt
+                } )
+
+                const contractName = req.params.contractName.split( '.' )[ 0 ]
+                const sourceCode = contracts[ projectName ][ contractName ]['sourceCode']
+                    .split( "\n" )
+                    .map( line => {
+                        const match = line.match( /import\s*\{\s*([^}]*)\s*\}\s*from\s*'o1js';/ )
+                        if( match  ){
+                            const extractedContent = match[ 1 ].trim()
+                            return `const {${extractedContent}} = o1js`
+                        } else {
+                            return line
+                        }
+                    } )
+                    .join( "\n" )
+
+                res.type('application/javascript')
+                res.set( 'Content-Type', 'application/javascript' )
+                res.send( sourceCode )
+          } )
 
         return true
     }
 
 
     #addApiGetLocalO1js() {
+        this.#app.use( (req, res, next) => {
+            res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+            res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+            next();
+        } )
+
+
         this.#app.get(
             this.#config['server']['routes']['getLocalO1js']['route'], 
             ( req, res ) => {
@@ -267,6 +368,8 @@ export class Server {
                         this.#state['localO1js'], 
                         'utf-8' 
                     )
+
+                    res.set( 'Content-Type', 'application/javascript' )
                     res.send( fileContent )
                 } else {
                     res
