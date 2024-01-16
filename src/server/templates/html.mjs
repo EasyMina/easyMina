@@ -1,6 +1,5 @@
 const html = `
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="github-markdown.css">
 <style>
   {{style}}
 </style>
@@ -17,11 +16,61 @@ const html = `
 
 
   <script type="module">
+
+  async function main( { ids } ) {
+    const minaData = new MinaData( {
+      'networkName': 'berkeley'
+    } )
+
+    const all = await Promise.all(
+      ids.map( async( publicKey ) => {
+        const result = await minaData.getData( {
+          'preset': 'accountBalance', 
+          'userVars': { publicKey }
+        } )
+        return { publicKey, ...result }
+      } )
+    )
+
+    all
+      .forEach( response => {
+        try {
+          console.log( response )
+          // response['data']['account']['total]
+
+          let idStatus = ''
+          idStatus += 'status--'
+          idStatus += response['publicKey']
+          const elementStatus = document.getElementById( idStatus )
+          elementStatus.innerHTML = ( response['data']['account'] !== null ) ? '🟩' : '🟨'
+
+          let id = ''
+          id += 'balance--'
+          id += response['publicKey']
+          const element = document.getElementById( id )
+          const balance = Number.parseInt( response['data']['account']['balance']['total'] ) / 1000000000
+          element.innerHTML = balance
+
+          let idNonce = ''
+          idNonce += 'nonce--'
+          idNonce += response['publicKey']
+          const elementNonce = document.getElementById( idNonce )
+          elementNonce.innerHTML = response['data']['account']['nonce']
+
+        } catch( e ) {
+          console.log( e )
+        }
+      } )
+
+    console.log( 'all', all )
+    return true
+  }
+
   
   import { MinaData } from 'https://unpkg.com/minadata@latest/dist/MinaData.js'
 
   const elements = document
-    .querySelectorAll('[id^="req--"]')
+    .querySelectorAll('[id^="balance--"]')
 
     let ids = [];
 
@@ -32,23 +81,9 @@ const html = `
     ids = ids.map( a => a.split('--')[ 1 ] )
     console.log( ids )
 
-console.log( 'A' )
-  const minaData = new MinaData()
-  console.log( 'B' )
-  minaData.init( {
-    'network': 'berkeley'
-} )
-console.log( 'C' )
-   minaData
-      .getData( {
-        'preset': 'accountBalance', 
-        'userVars': { 'publicKey': ids[ 0 ] },
-        'network': 'berkeley'
-      } )
-      .then( result => {
-        console.log( 'D' )
-        console.log( result )
-    } )
+    main( { ids } )
+      .then( a => console.log( a ) )
+      .catch( e => console.log( e ) ) 
 
 </script>
 </body>

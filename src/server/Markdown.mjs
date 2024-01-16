@@ -1,6 +1,7 @@
 import axios from 'axios'
 import url from 'url'
 import path from 'path'
+import moment from 'moment'
 
 
 export class Markdown {
@@ -19,7 +20,6 @@ export class Markdown {
         } )
 
         let strs = ''
-
         strs += Object
             .entries( accounts )
             .reduce( ( acc, a, index ) => {
@@ -175,8 +175,13 @@ export class Markdown {
     }
 
 
+    #createDeployedContractGroupTable( { groupName, accountGroup } ) {
+
+    }
+
+
     #createAccountGroupTable( { groupName, accountGroup } ) {
-        const columns = [ 'Name', 'Address', 'Network', 'Balance', 'Nonce', 'Faucet' ]
+        const columns = [ 'Name', 'Address', 'Created', 'Status', 'Balance', 'Nonce', 'Network', 'Faucet' ]
 
         let strs = ''
         strs += Object
@@ -206,14 +211,32 @@ export class Markdown {
                             case 'Network':
                                 str = value['networkName']
                                 break
+                            case 'Created': 
+                                const durationInMilliseconds = moment().diff(
+                                    moment.unix( value['createdUnix'] )
+                                )
+                                const duration = moment.duration( durationInMilliseconds )
+                                const formattedDuration = duration.humanize()
+                                str = formattedDuration
+                                break
+                            case 'Status': 
+                                str = ''
+                                str += `<div id="status--${value['addressFull']}">`
+                                str += ''
+                                str += '</div>'
+                                break
                             case 'Balance': 
                                 str = ''
-                                str += `<div id="req--${value['addressFull']}">`
+                                str += `<div id="balance--${value['addressFull']}">`
                                 str += ''
                                 str += '</div>'
                                 break
                             case 'Nonce': 
                                 // str = '<div>5</div>'
+                                str = ''
+                                str += `<div id="nonce--${value['addressFull']}">`
+                                str += ''
+                                str += '</div>'
                                 break
                             case 'Faucet': 
                                 str += `[`
