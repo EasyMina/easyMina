@@ -1,4 +1,8 @@
-node_modules
+.mina/
+workdir/
+tsconfig.json
+node_modules/
 package-lock.json
-.mina
-projects
+tsconfig.json
+index.mjs
+helper.txt

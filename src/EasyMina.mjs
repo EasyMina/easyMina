@@ -44,6 +44,8 @@ import { Account } from './environment/Account.mjs'
 import { Contract } from './environment/Contract.mjs'
 import { Encryption } from './environment/Encryption.mjs'
 import { Typescript } from './environment/Typescript.mjs'
+import { Npm } from './environment/Npm.mjs'
+
 import { Server } from './server/Server.mjs'
 import { ProjectImporter } from './import/ProjectImporter.mjs'
 import { Git } from './environment/Git.mjs'
@@ -70,6 +72,8 @@ export class EasyMina {
     #contract
     #git
     #typescript
+    #npm
+
     #minaData
 
 
@@ -137,6 +141,10 @@ export class EasyMina {
             'validate': this.#config['validate']
         } )
 
+        this.#npm = new Npm( {
+            'validate': this.#config['validate']
+        } )
+
         return this
     }
 
@@ -152,6 +160,15 @@ export class EasyMina {
         this.#encryption.setSecret( { 
             'secret': secret['secret']
         } )
+    }
+
+
+    createScriptsKeyValuePairs() {
+        this.#npm.createScriptsKeyValuePairs( { 
+            'environment': this.#environment
+        } )
+
+        return true
     }
 
 

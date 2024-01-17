@@ -292,7 +292,7 @@ export class CLI {
                         'default': ''
                     }
                 ] )
-                url = resp2.url
+                url = res2.url
                 break
             case 'dataurl':
                 function questionAsync( question ) {
@@ -338,6 +338,7 @@ export class CLI {
         const { phrase, projectName } = response
 
         this.#easyMina.importProject( { url, phrase, projectName } )
+        this.#easyMina.createScriptsKeyValuePairs()
         return true 
     }
 
@@ -388,6 +389,7 @@ export class CLI {
 
     async #checkTsConfig() {
         this.#easyMina.createTsConfigs()
+        this.#easyMina.createScriptsKeyValuePairs()
 
         const msg = `✔ tsconfig.json files found.`
         const msgColor = chalk.green( msg )
