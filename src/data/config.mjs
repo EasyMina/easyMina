@@ -401,6 +401,6 @@ export const config = {
             'validate__folders__workdir__subfolders__subfolders__contracts__name',
             'validate__folders__workdir__subfolders__subfolders__frontend__name'
         ],
-        'suffixs': [ '.js', '.mjs', '.ts', '.png', '.html', '.css', '.json' ]
+        'suffixs': [ '.js', '.mjs', '.ts', '.png', '.html', '.css', '.json', '.md' ]
     }
 }

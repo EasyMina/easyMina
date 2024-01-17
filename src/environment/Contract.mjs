@@ -1,7 +1,9 @@
-import { PrivateKey } from 'o1js'
+// import { PrivateKey } from 'o1js'
 import { printMessages, keyPathToValue, shortenAddress } from './../helpers/mixed.mjs'
 import fs from 'fs'
 import moment from 'moment'
+
+var PrivateKey
 
 
 export class Contract {
@@ -9,7 +11,8 @@ export class Contract {
     #state
 
 
-    constructor( { validate, networks, contracts } ) {
+    constructor( { validate, networks, contracts, o1js } ) {
+        PrivateKey = o1js['PrivateKey']
         this.#config = { validate, networks, contracts }
         this.init()
     }

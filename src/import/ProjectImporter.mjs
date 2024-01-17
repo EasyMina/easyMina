@@ -1,4 +1,4 @@
-import { printMessages, keyPathToValue } from '../helpers/mixed.mjs'
+import { keyPathToValue } from '../helpers/mixed.mjs'
 import fs from 'fs'
 import path from 'path'
 import moment from 'moment'
@@ -173,7 +173,7 @@ export class ProjectImporter {
                     'destinationPath': split.slice( 2 ).join( '/' ),
                     'rootPath': split.slice( 0, 2 ).join( '/' )
                 }
-        
+
                 if( split.length > 1 ) {
                     struct['projectName'] = split[ 1 ]
                 }

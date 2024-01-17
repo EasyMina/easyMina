@@ -56,11 +56,12 @@ import moment from 'moment'
 import fs from 'fs'
 import ora from 'ora'
 
-import { PrivateKey } from 'o1js'
+// import { PrivateKey } from 'o1js'
 import axios from 'axios'
 import crypto from 'crypto'
 import { fileURLToPath } from 'url'
 
+var PrivateKey
 
 export class EasyMina {
     #config
@@ -77,15 +78,16 @@ export class EasyMina {
     #minaData
 
 
-    constructor( { encryption=true, setSecret=true, networkName=undefined } ) {
+    constructor( { encryption=true, setSecret=true, networkName=undefined, o1js } ) {
+        PrivateKey = o1js['PrivateKey']
 
         this.#config = config
-        this.init( { encryption, setSecret, networkName } )
+        this.init( { encryption, setSecret, networkName, o1js } )
         return 
     }
 
 
-    init( { encryption=true, setSecret=true, networkName=undefined } ) {
+    init( { encryption=true, setSecret=true, networkName=undefined, o1js } ) {
         const [ messages, comments ] = this.#validateInit( { encryption, setSecret, networkName } )
         printMessages( { messages, comments } )
 
@@ -99,13 +101,15 @@ export class EasyMina {
         this.#account = new Account( {
             'accounts': this.#config['accounts'],
             'networks': this.#config['networks'],
-            'validate': this.#config['validate']
+            'validate': this.#config['validate'],
+            o1js
         } ) 
 
         this.#contract = new Contract( {
             'validate': this.#config['validate'],
             'networks': this.#config['networks'],
-            'contracts': this.#config['contracts']
+            'contracts': this.#config['contracts'],
+            o1js
         } )
 
         this.#typescript = new Typescript( {

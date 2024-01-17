@@ -2,6 +2,7 @@ import inquirer from 'inquirer'
 import figlet from 'figlet'
 import chalk from 'chalk'
 
+import * as o1js from 'o1js'
 import { EasyMina } from './EasyMina.mjs'
 import readline from 'readline'
 import fs from 'fs'
@@ -20,7 +21,8 @@ export class CLI {
         this.#easyMina = new EasyMina( { 
             encryption: true,
             setSecret: false,
-            networkName: 'berkeley'
+            networkName: 'berkeley',
+            o1js
         } )
 
         return true

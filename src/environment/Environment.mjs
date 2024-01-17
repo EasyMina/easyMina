@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import moment from 'moment'
 
-import { printMessages, keyPathToValue } from '../helpers/mixed.mjs'
+import { keyPathToValue } from '../helpers/mixed.mjs'
 
 
 export class Environment {

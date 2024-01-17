@@ -1,11 +1,14 @@
 import { PatternFinder } from 'patternfinder'
 import { keyPathToValue, shortenAddress } from './../helpers/mixed.mjs'
 
-import { PrivateKey } from 'o1js'
+// import { PrivateKey } from 'o1js'
 import axios from 'axios'
 import fs from 'fs'
 import moment from 'moment'
 import ora from 'ora'
+
+
+var PrivateKey
 
 
 export class Account {
@@ -13,7 +16,9 @@ export class Account {
     #patternFinder
 
 
-    constructor( { accounts, networks, validate } ) {
+    constructor( { accounts, networks, validate, o1js } ) {
+        PrivateKey = o1js['PrivateKey']
+
         this.#config = { accounts, networks, validate }
         this.#patternFinder = this.#addPatternFinder()
 
