@@ -20,7 +20,6 @@ export class Npm {
         this.#state['packagePath'] = `${process.cwd()}/package.json`
         this.#state['packageExists'] = this.#isPackageJsonValid()
 
-        console.log( this.#state )
         return true
     }
 
