@@ -19,7 +19,7 @@ Helps you set up:
 Command Line Interface
 
 ```
-npm -g easymina
+npm i -g easymina
 easymina
 ```
 
