@@ -123,6 +123,7 @@ export class CLI {
             //'url': 'https://gist.githubusercontent.com/a6b8/a05d605f04972e67eccf998587b9471a/raw/089553e6e8e071f3e149be02bbacb7e42b727483/gistfile1.txt',
             // 'phrase': 'test'
         } )
+        this.#easyMina.createScriptsKeyValuePairs()
         console.log( )
 
         return true
@@ -362,7 +363,7 @@ export class CLI {
         ]
 
         const { npm } = await inquirer.prompt( questions )
-        await execAsync( 'npm init -y --type=module && npm i o1js easymina' )
+        await execAsync( 'npm init -y --default-type=module && npm i o1js easymina' )
 
         return true
     }

@@ -77,6 +77,8 @@ export class Npm {
                 }
             } )
 
+        data['type'] = 'module'
+
         fs.writeFileSync( 
             this.#state['packagePath'],
             JSON.stringify( data, null, 2 ),
