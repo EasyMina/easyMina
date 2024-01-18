@@ -218,32 +218,32 @@ export class Server {
 
 
     #addRouteIndex( { projectName } ) {
-        const accountTables = this.#markdown
-            .createAccountGroupTables( { 
-                'environment': this.#environment,
-                'account': this.#account, 
-                'encryption': this.#encryption
-            } ) 
-
-        const deployedContractTables = this.#markdown
-            .createDeployedContractGroupTables( {
-                'environment': this.#environment,
-                'contract': this.#contract, 
-                'encryption': this.#encryption
-            } )
-            
-        const projectTables = this.#markdown
-            .createProjects( { 
-                projectName,
-                'environment': this.#environment
-             } )
-        
-        const scripts = this.#environment
-            .getScripts()
-
         this.#app.get(
             '/',
             ( req, res ) => {
+                const accountTables = this.#markdown
+                    .createAccountGroupTables( { 
+                        'environment': this.#environment,
+                        'account': this.#account, 
+                        'encryption': this.#encryption
+                    } ) 
+        
+                const deployedContractTables = this.#markdown
+                    .createDeployedContractGroupTables( {
+                        'environment': this.#environment,
+                        'contract': this.#contract, 
+                        'encryption': this.#encryption
+                    } )
+                    
+                const projectTables = this.#markdown
+                    .createProjects( { 
+                        projectName,
+                        'environment': this.#environment
+                    } )
+                
+                const scripts = this.#environment
+                    .getScripts()
+
                 const _insert = overview
                     .replace( '{{accountTables}}', accountTables )
                     .replace( '{{deployedContracts}}', deployedContractTables )
