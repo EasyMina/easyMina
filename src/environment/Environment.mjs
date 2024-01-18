@@ -188,7 +188,7 @@ export class Environment {
     }
 
 
-    getAccounts( { account, encrypt } ) {
+    getAccounts( { account, encryption } ) {
         const path = [ 
             'validate__folders__credentials__name',
             'validate__folders__credentials__subfolders__accounts__name'
@@ -208,10 +208,10 @@ export class Environment {
                 if( !fs.statSync( filePath ).isDirectory() ) {
                     if( filePath.endsWith( '.json' ) ) {
                         const [ messages, comments ] = account
-                            .validate( { filePath, encrypt } )
+                            .validate( { filePath, encryption } )
                         if( messages.length === 0 ) {
                             const tmp = fs.readFileSync( filePath, 'utf-8' )
-                            const credential = encrypt.decryptCredential( {
+                            const credential = encryption.decryptCredential( {
                                 'credential': JSON.parse( tmp )
                             } )
 
@@ -276,7 +276,7 @@ export class Environment {
     }
 
 
-    getDeployedContracts( { contract, encrypt } ) {
+    getDeployedContracts( { contract, encryption } ) {
         const path = [ 
             'validate__folders__credentials__name',
             'validate__folders__credentials__subfolders__contracts__name'
@@ -296,10 +296,10 @@ export class Environment {
                 if( !fs.statSync( filePath ).isDirectory() ) {
                     if( filePath.endsWith( '.json' ) ) {
                         const [ messages, comments ] = contract
-                            .validateCredential( { filePath, encrypt } )
+                            .validateCredential( { filePath, encryption } )
                         if( messages.length === 0 ) {
                             const tmp = fs.readFileSync( filePath, 'utf-8' )
-                            const credential = encrypt.decryptCredential( {
+                            const credential = encryption.decryptCredential( {
                                 'credential': JSON.parse( tmp )
                             } )
 
@@ -536,7 +536,7 @@ export class Environment {
                                 cmds.forEach( a => acc[ id ][ a[ 2 ] ] = '' )
                             }
 
-                            acc[ id ][ key ] =  `${path}/${file}`
+                            acc[ id ][ key ] = `${path}/${file}`
                         }
                     } )
                 return acc

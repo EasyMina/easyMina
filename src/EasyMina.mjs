@@ -547,14 +547,14 @@ export class EasyMina {
         const contracts = this.#environment
             .getDeployedContracts( {
                 'contract': this.#contract, 
-                'encrypt': this.#encryption 
+                'encryption': this.#encryption 
             } )
 
         return contracts
     }
 
 
-    async getDeployedContract( { name, projectName } ) {
+    async getDeployedContract( { name, projectName, checkStatus, strict } ) {
         const deployedContracts = this.getDeployedContracts()
         const [ messages, comments ] = this.#validateGetDeployedContract( { name, projectName, deployedContracts } )
         printMessages( { messages, comments } )
@@ -565,6 +565,36 @@ export class EasyMina {
             'encryption': this.#encryption
         } )
 
+        if( checkStatus ) {
+            const data = await this.getAccountStatus( { 
+                'publicKey': header['addressFull'],
+                'networkName': header['networkName'],
+                strict
+            } ) 
+
+            const tmp = [
+                [ data['balance'], 'balance' ],
+                [ data['nonce'], 'nonce' ]
+            ]
+                .forEach( a => {
+                    const [ value, key ] = a
+                    if( value === undefined ) {
+                        result[ key ] = NaN
+                    } else if( typeof value !== 'number' ) {
+                        try {
+                            result[ key ] = Number( value )
+                            if( key === 'balance' ) {
+                                result[ key ] = result[ key ] / 1000000000
+                            }
+                        } catch( e ) {
+                            result[ key ] = NaN
+                        }
+                    } else {
+                        result[ key ] = value
+                    }
+                } )
+        }
+
         const result = { ...header, ...classes }
         return result
     }
@@ -573,7 +603,7 @@ export class EasyMina {
     getAccounts() {
         const accounts = this.#environment.getAccounts( { 
             'account': this.#account, 
-            'encrypt': this.#encryption 
+            'encryption': this.#encryption 
         } )
 
         return accounts 
@@ -606,39 +636,31 @@ export class EasyMina {
         if( checkStatus ) {
             const data = await this.getAccountStatus( { 
                 'publicKey': selection['addressFull'],
-                'networkName': selection['networkName']
+                'networkName': selection['networkName'],
+                strict
             } ) 
 
-            if( data['status']['code'] !== 200 ) {
-                strict ? console.log( `${data['status']['message']} Check for pending transactions: ${selection['faucetTxHashExplorer']}.` ) : ''
-                strict ? process.exit( 1 ) : ''
-            } else if( !data['success'] ) {
-                strict ? console.log( `Balance not found. Check for pending transactions: ${selection['faucetTxHashExplorer']}.` ) : ''
-                strict ? process.exit( 1 ) : ''
-            } else {
-
-                const tmp = [
-                    [ data['balance'], 'balance' ],
-                    [ data['nonce'], 'nonce' ]
-                ]
-                    .forEach( a => {
-                        const [ value, key ] = a
-                        if( value === undefined ) {
-                            result[ key ] = NaN
-                        } else if( typeof value !== 'number' ) {
-                            try {
-                                result[ key ] = Number( value )
-                                if( key === 'balance' ) {
-                                    result[ key ] = result[ key ] / 1000000000
-                                }
-                            } catch( e ) {
-                                result[ key ] = NaN
+            const tmp = [
+                [ data['balance'], 'balance' ],
+                [ data['nonce'], 'nonce' ]
+            ]
+                .forEach( a => {
+                    const [ value, key ] = a
+                    if( value === undefined ) {
+                        result[ key ] = NaN
+                    } else if( typeof value !== 'number' ) {
+                        try {
+                            result[ key ] = Number( value )
+                            if( key === 'balance' ) {
+                                result[ key ] = result[ key ] / 1000000000
                             }
-                        } else {
-                            result[ key ] = value
+                        } catch( e ) {
+                            result[ key ] = NaN
                         }
-                    } )
-            }
+                    } else {
+                        result[ key ] = value
+                    }
+                } )
         }
 
         let credential = JSON.parse( fs.readFileSync( selection['filePath'], 'utf-8' ) )
@@ -657,7 +679,7 @@ export class EasyMina {
     }
 
 
-    async getAccountStatus( { publicKey, networkName } ) {
+    async getAccountStatus( { publicKey, networkName, strict } ) {
         const [ messages, comments ] = this.#validateGetAccountStatus( { publicKey, networkName } )
         printMessages( { messages, comments } )
 
@@ -704,11 +726,20 @@ export class EasyMina {
                     .every( a => a )
             }
         } catch( e ) {}
+
+
+        if( account['status']['code'] !== 200 ) {
+            strict ? console.log( `${account['status']['message']} Check for pending transactions: ${selection['faucetTxHashExplorer']}.` ) : ''
+            strict ? process.exit( 1 ) : ''
+        } else if( !account['success'] ) {
+            strict ? console.log( `Balance not found. Check for pending transactions: ${selection['faucetTxHashExplorer']}.` ) : ''
+            strict ? process.exit( 1 ) : ''
+        } 
         return account
     }
 
 
-    async requestContract( { name, deployer, encrypt=true, sourcePath=null } ) {
+    async requestContract( { name, deployer, encrypt=true, sourcePath=null, strict=false } ) {
         const networkName = this.#state['networkName']
         const contractAbsolutePath = path.resolve(
             process.argv[ 1 ], 
@@ -731,6 +762,9 @@ export class EasyMina {
             networkName,
             deployer,
             encrypt,
+            strict,
+            'contract': this.#contract,
+            'encryption': this.#encryption,
             'environment': this.#environment
         } )
 

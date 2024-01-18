@@ -23,13 +23,13 @@ export class Contract {
     }
 
 
-    async request( { name, contractAbsolutePath, networkName, deployer, encrypt, environment } ) {
+    async request( { name, contractAbsolutePath, networkName, deployer, encrypt, strict, contract, encryption, environment } ) {
         const [ messages, comments ] = this.#validateState( { 'state': this.#state } )
         printMessages( { messages, comments } )
 
         const result = {
             'header': {
-                name,
+                'name': null,
                 'methods': [],
                 'projectName': null,
                 networkName,
@@ -76,6 +76,24 @@ export class Contract {
                 result !== undefined ? acc = result : ''
                 return acc
             }, '' )
+
+        const contracts = environment.getDeployedContracts( {
+            contract, 
+            encryption
+        } )
+
+        if( Object.hasOwn( contracts, result['header']['projectName'] ) ) {
+            if( Object.keys( contracts[ result['header']['projectName'] ] ).includes( name ) ) {
+                result['header']['name'] = `${name}-${moment().unix()}`
+                console.log( `Name '${name}' already taken, changed to '${result['header']['name']}'.` )
+                strict ? process.exit( 1 ) : ''
+            } else {
+                result['header']['name'] = name
+            }
+        } else {
+            result['header']['name'] = name
+        }
+
         result['header']['methods'] = await environment
             .getScriptMethods( { contractAbsolutePath } )
         const mom = moment()
@@ -191,7 +209,7 @@ export class Contract {
     }
 
 
-    validateCredential( { filePath, encrypt } ) {
+    validateCredential( { filePath, encryption } ) {
         const messages = []
         const comments = []
 
@@ -208,7 +226,7 @@ export class Contract {
         }
 
         if( messages.length === 0 ) {
-            json = encrypt.decryptCredential( {
+            json = encryption.decryptCredential( {
                 'credential': json
             } )
 

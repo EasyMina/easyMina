@@ -81,7 +81,7 @@ export class Account {
     }
 
 
-    validate( { filePath, encrypt } ) {
+    validate( { filePath, encryption } ) {
         const messages = []
         const comments = []
 
@@ -98,7 +98,7 @@ export class Account {
         }
 
         if( messages.length === 0 ) {
-            json = encrypt.decryptCredential( {
+            json = encryption.decryptCredential( {
                 'credential': json
             } )
 
