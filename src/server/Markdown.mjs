@@ -12,10 +12,10 @@ export class Markdown {
         this.#config = config
     }
 
-    createDeployedContractGroupTables( { environment, contract, encrypt } ) {
+    createDeployedContractGroupTables( { environment, contract, encryption } ) {
         const deployedContracts = environment.getDeployedContracts( {
             contract,
-            encrypt
+            encryption
         } )
 
         let strs = ''
@@ -35,15 +35,14 @@ export class Markdown {
                 return acc
             }, '' )
 
-
         return strs
     }
 
 
-    createAccountGroupTables( { environment, account, encrypt } ) {
+    createAccountGroupTables( { environment, account, encryption } ) {
         const accounts = environment.getAccounts( { 
             account, 
-            encrypt 
+            encryption 
         } )
 
         let strs = ''

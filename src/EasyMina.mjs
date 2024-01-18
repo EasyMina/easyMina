@@ -78,17 +78,17 @@ export class EasyMina {
     #minaData
 
 
-    constructor( { encryption=true, setSecret=true, networkName=undefined, o1js } ) {
+    constructor( { encrypt=true, setSecret=true, networkName=undefined, o1js } ) {
         PrivateKey = o1js['PrivateKey']
 
         this.#config = config
-        this.init( { encryption, setSecret, networkName, o1js } )
+        this.init( { encrypt, setSecret, networkName, o1js } )
         return 
     }
 
 
-    init( { encryption=true, setSecret=true, networkName=undefined, o1js } ) {
-        const [ messages, comments ] = this.#validateInit( { encryption, setSecret, networkName } )
+    init( { encrypt=true, setSecret=true, networkName=undefined, o1js } ) {
+        const [ messages, comments ] = this.#validateInit( { encrypt, setSecret, networkName } )
         printMessages( { messages, comments } )
 
         this.#encryption = new Encryption()
@@ -129,7 +129,7 @@ export class EasyMina {
             'names': null,
             'secretString': null,
             'secretId': null,
-            encryption
+            encrypt
         }
 
         this.#minaData = new MinaData( {
@@ -224,9 +224,9 @@ export class EasyMina {
     }
 
 
-    exportProject( { projectName, name='', description='', phrase, encryption=true } ) {
+    exportProject( { projectName, name='', description='', phrase, encrypt=true } ) {
         const [ messages, comments ] = this.#validateExportProject( {
-            projectName, name, description, phrase, encryption
+            projectName, name, description, phrase, encrypt
         } )
         printMessages( { messages, comments } )
 
@@ -241,7 +241,7 @@ export class EasyMina {
             .createExport( { projectName } )
 
         let result
-        if( encryption ) {
+        if( encrypt ) {
             const encrypt = new Encryption()
             result = encrypt
                 .setSecret( { 'secret': phrase, 'secure': false } )
@@ -253,7 +253,7 @@ export class EasyMina {
         const envelope = {
             name,
             description,
-            'encrypt': encryption,
+            encrypt,
             'created': moment().format( 'YYYY-MM-DD hh:mm:ss A' ),
             'content': result
         }
@@ -843,7 +843,7 @@ export class EasyMina {
     startServer( { projectName } ) {
         const [ messages, comments ] = this.#validateStartServer( { projectName } )
         printMessages( { messages, comments } )
-        // console.log( `Start server for '${this.#state['projectName']}'.` )
+
         const server = new Server( {
             'server': this.#config['server'],
             'validate': this.#config['validate']
@@ -854,7 +854,7 @@ export class EasyMina {
                 projectName,
                 'environment': this.#environment,
                 'account': this.#account, 
-                'encrypt': this.#encryption,
+                'encryption': this.#encryption,
                 'contract': this.#contract
             } )
             .start()
@@ -871,7 +871,7 @@ export class EasyMina {
     #getMissingAccounts( { names, groupName } ) {
         const availableDeyployers = this.#environment.getAccounts( { 
             'account': this.#account, 
-            'encrypt': this.#encryption 
+            'encryption': this.#encryption 
         } )
 
         const missingNames = names
@@ -891,7 +891,7 @@ export class EasyMina {
     }
 
 
-    #validateExportProject( { projectName, name, description, phrase, encryption } ) {
+    #validateExportProject( { projectName, name, description, phrase, encrypt } ) {
         const messages = []
         const comments = []
 
@@ -910,17 +910,17 @@ export class EasyMina {
                 }
             } )
 
-        if( encryption === undefined ) {
-            messages.push( `Key 'encryption' is undefined.` )
-        } else if( typeof encryption !== 'boolean' ) {
-            messages.push( `Key 'encryption' is not type of 'boolean'.` )
+        if( encrypt === undefined ) {
+            messages.push( `Key 'encrypt' is undefined.` )
+        } else if( typeof encrypt !== 'boolean' ) {
+            messages.push( `Key 'encrypt' is not type of 'boolean'.` )
         }
 
         if( messages.length !== 0 ) {
             return [ messages, comments ]
         }
 
-        if( encryption === true ) {
+        if( encrypt === true ) {
             if( phrase === undefined ) {
                 messages.push( `Key 'phrase' is 'undefined'.` )
             } else if( typeof phrase !== 'string' ) {
@@ -983,12 +983,12 @@ export class EasyMina {
     }
 
 
-    #validateInit( { encryption, setSecret, networkName } ) {
+    #validateInit( { encrypt, setSecret, networkName } ) {
         const messages = []
         const comments = []
 
         const tmp = [
-            [ encryption, 'encryption', 'boolean' ],
+            [ encrypt, 'encrypt', 'boolean' ],
             [ setSecret, 'setSecret', 'boolean' ],
             [ networkName, 'networkName', 'string' ],
         ]

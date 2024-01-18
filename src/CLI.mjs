@@ -212,17 +212,17 @@ export class CLI {
             },
             {
                 type: 'confirm',
-                name: 'encryption',
+                name: 'encrypt',
                 message: 'Do you want to encrypt the file?',
                 default: true
             }
         ]
 
         const answers = await inquirer.prompt( questions )
-        const { projectName, name, description, encryption } = answers
+        const { projectName, name, description, encrypt } = answers
 
         let phrase = undefined
-        if( encryption ) {
+        if( encrypt ) {
             const resp = await inquirer.prompt( [
                 {
                     type: 'password',
@@ -250,7 +250,7 @@ export class CLI {
             phrase = resp['phrase']
         } 
 
-        this.#easyMina.exportProject( { projectName, name, description, phrase, encryption } )
+        this.#easyMina.exportProject( { projectName, name, description, phrase, encrypt } )
         return true
     }
 

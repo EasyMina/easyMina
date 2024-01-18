@@ -20,7 +20,7 @@ export class Server {
     #environment
     #account
     #contract
-    #encrypt
+    #encryption
     #markdown
     
 
@@ -30,14 +30,14 @@ export class Server {
     }
 
 
-    init( { projectName, environment, account, contract, encrypt } ) {
+    init( { projectName, environment, account, contract, encryption } ) {
         this.#app = express()
         this.#state = this.#addState( { projectName } )
         this.#container = this.#addContainer()
         this.#environment = environment
         this.#account = account
         this.#contract = contract
-        this.#encrypt = encrypt
+        this.#encryption = encryption
         this.#markdown = new Markdown()
 
         const [ messages, comments ] = this.#validateState( { 'state': this.#state } )
@@ -222,14 +222,14 @@ export class Server {
             .createAccountGroupTables( { 
                 'environment': this.#environment,
                 'account': this.#account, 
-                'encrypt': this.#encrypt
+                'encryption': this.#encryption
             } ) 
-        
+
         const deployedContractTables = this.#markdown
             .createDeployedContractGroupTables( {
                 'environment': this.#environment,
                 'contract': this.#contract, 
-                'encrypt': this.#encrypt
+                'encryption': this.#encryption
             } )
             
         const projectTables = this.#markdown
@@ -292,7 +292,7 @@ export class Server {
             ( req, res ) => { 
                 const availableDeyployers = this.#environment.getAccounts( { 
                     'account': this.#account, 
-                    'encrypt': this.#encrypt 
+                    'encryption': this.#encryption
                 } )
 
                 res.json( { 'data': availableDeyployers } ) 
@@ -309,7 +309,7 @@ export class Server {
             ( req, res ) => { 
                 const contracts = this.#environment.getDeployedContracts( {
                     'contract': this.#contract, 
-                    'encrypt': this.#encrypt
+                    'encryption': this.#encryption
                 } )
                 res.json( { 'data': Object.keys( contracts[ projectName ] ) } ) 
             }
@@ -326,7 +326,7 @@ export class Server {
             ( req, res ) => {
                 const contracts = this.#environment.getDeployedContracts( {
                     'contract': this.#contract, 
-                    'encrypt': this.#encrypt
+                    'encryption': this.#encryption
                 } )
 
                 const contractName = req.params.contractName.split( '.' )[ 0 ]
