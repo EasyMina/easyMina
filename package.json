@@ -13,15 +13,15 @@
     "em/hello-world/0": "tsc -p projects/hello-world/tsconfig.json && node projects/hello-world/backend/0-create-accounts.mjs",
     "em/hello-world/1": "tsc -p projects/hello-world/tsconfig.json && node projects/hello-world/backend/1-deploy-smart-contract.mjs",
     "em/hello-world/2": "tsc -p projects/hello-world/tsconfig.json && node projects/hello-world/backend/2-call-method.mjs",
-    "em/test/0": "tsc -p projects/test/tsconfig.json && node projects/test/backend/0-create-accounts.mjs",
-    "em/test/1": "tsc -p projects/test/tsconfig.json && node projects/test/backend/1-deploy-smart-contract.mjs",
-    "em/test/2": "tsc -p projects/test/tsconfig.json && node projects/test/backend/2-call-method.mjs",
     "em/re/0": "tsc -p projects/re/tsconfig.json && node projects/re/backend/0-create-accounts.mjs",
     "em/re/1": "tsc -p projects/re/tsconfig.json && node projects/re/backend/1-deploy-smart-contract.mjs",
     "em/re/2": "tsc -p projects/re/tsconfig.json && node projects/re/backend/2-call-method.mjs",
     "em/rer/0": "tsc -p projects/rer/tsconfig.json && node projects/rer/backend/0-create-accounts.mjs",
     "em/rer/1": "tsc -p projects/rer/tsconfig.json && node projects/rer/backend/1-deploy-smart-contract.mjs",
-    "em/rer/2": "tsc -p projects/rer/tsconfig.json && node projects/rer/backend/2-call-method.mjs"
+    "em/rer/2": "tsc -p projects/rer/tsconfig.json && node projects/rer/backend/2-call-method.mjs",
+    "em/test/0": "tsc -p projects/test/tsconfig.json && node projects/test/backend/0-create-accounts.mjs",
+    "em/test/1": "tsc -p projects/test/tsconfig.json && node projects/test/backend/1-deploy-smart-contract.mjs",
+    "em/test/2": "tsc -p projects/test/tsconfig.json && node projects/test/backend/2-call-method.mjs"
   },
   "keywords": [
     "Mina",
