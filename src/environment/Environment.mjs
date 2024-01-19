@@ -430,6 +430,9 @@ export class Environment {
             result = Object
                 .entries( result )
                 .reduce( ( acc, a, index, all ) => {
+                    if( index === 0 ) {
+                        acc = { 'tmp': [], 'result': [] } 
+                    }
                     const [ key, value ] = a
                     if( /^[0-9]-/.test( key ) ) {
                         const id = key.split( '-' )[ 0 ]
@@ -447,8 +450,6 @@ export class Environment {
                         } else {
                             value['mdUrl'] = ''
                         }
-                        
-
                     } else {
                         value['npm'] = ''
                         value['mdUrl'] = ''
@@ -458,7 +459,7 @@ export class Environment {
                         acc = acc['result']
                     }
                     return acc
-                }, { 'tmp': [], 'result': [] } )
+                }, [] )
                 .reduce( ( acc, a, index ) => {
                     const [ key, value ] = a
                     acc[ key ] = value
