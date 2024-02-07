@@ -564,6 +564,8 @@ export class EasyMina {
             'encryption': this.#encryption
         } )
 
+        let result = {}
+
         if( checkStatus ) {
             const data = await this.getAccountStatus( { 
                 'publicKey': header['addressFull'],
@@ -594,7 +596,7 @@ export class EasyMina {
                 } )
         }
 
-        const result = { ...header, ...classes }
+        result = { ...result, ...header, ...classes }
         return result
     }
 
