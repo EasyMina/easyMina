@@ -18,15 +18,17 @@ export class Npm {
         this.#state = {}
 
         this.#state['packagePath'] = `${process.cwd()}/package.json`
-        this.#state['packageExists'] = this.#isPackageJsonValid()
+        // this.#state['packageExists'] = this.#isPackageJsonValid()
 
         return true
     }
 
 
     createScriptsKeyValuePairs( { environment } ) {
-        if( !this.#state['packageExists'] ) {
-            console.log( `package.json does not exist or is not valid. ${this.#state['packagePath']}` )
+        const { valid, message } = this.#validatePackageJson()
+
+        if( !valid ) {
+            console.log( `${message} ${this.#state['packagePath']}` )
             process.exit( 1 )
         }
 
@@ -38,7 +40,6 @@ export class Npm {
         )
 
         const scripts = this.#getScripts( { environment } )
-        // console.log( JSON.stringify( scripts, null, 4 ) )
         const keyValues = Object
             .entries( scripts )
             .reduce( ( acc, a, index ) => {
@@ -58,7 +59,7 @@ export class Npm {
                                 str += `node ${v['source']}`
 
                                 if( v['npm'] !== '' ) {
-                                    acc.push( [ v['npm'].split( ' ' )[2], str ] )
+                                    acc.push( [ v['npm'].split( ' ' )[ 2 ], str ] )
                                 }
                             } )
 
@@ -93,12 +94,17 @@ export class Npm {
     }
 
 
-    #isPackageJsonValid() {
-        let result = false
+    #validatePackageJson() {
+        let message = 'Unknown error.'
+        let valid = false
         try {
+            message = 'File is not found.'
             const raw = fs.readFileSync( this.#state['packagePath'] )
+            message = 'File is not valid JSON.'
             const json = JSON.parse( raw )
-            result = [ 
+
+            message = 'package "o1js" is missing.'
+            valid = [ 
                 'dependencies', 
                 'devDependencies' 
             ]
@@ -109,10 +115,10 @@ export class Npm {
                     return Object.hasOwn( json[ key ], 'o1js' )
                 } )
                 .some( a => a )
+            message = 'Package "o1js" found.'
         } catch( e ) {
         }
-        
-        return result
+
+        return { valid, message }
     }
-    
 }
