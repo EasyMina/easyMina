@@ -36,7 +36,6 @@ easymina
 5. [Credits](#credits)<br>
 6.  [License](#license)<br>
 7.  [Code of Conduct](#code-of-conduct)<br>
-8.  
 
 
 ## Documentation

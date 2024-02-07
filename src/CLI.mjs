@@ -30,7 +30,6 @@ export class CLI {
 
     
     async start() {
-        console.log( 'LOCAL VERSION')
         this.#addHeadline2()
 
         await this.#createEnvironment()
