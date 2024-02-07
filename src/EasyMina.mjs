@@ -56,7 +56,6 @@ import moment from 'moment'
 import fs from 'fs'
 import ora from 'ora'
 
-// import { PrivateKey } from 'o1js'
 import axios from 'axios'
 import crypto from 'crypto'
 import { fileURLToPath } from 'url'
@@ -637,7 +636,8 @@ export class EasyMina {
             const data = await this.getAccountStatus( { 
                 'publicKey': selection['addressFull'],
                 'networkName': selection['networkName'],
-                strict
+                strict,
+                selection
             } ) 
 
             const tmp = [
@@ -679,7 +679,7 @@ export class EasyMina {
     }
 
 
-    async getAccountStatus( { publicKey, networkName, strict } ) {
+    async getAccountStatus( { publicKey, networkName, strict, selection } ) {
         const [ messages, comments ] = this.#validateGetAccountStatus( { publicKey, networkName } )
         printMessages( { messages, comments } )
 
@@ -727,14 +727,14 @@ export class EasyMina {
             }
         } catch( e ) {}
 
-
         if( account['status']['code'] !== 200 ) {
             strict ? console.log( `${account['status']['message']} Check for pending transactions: ${selection['faucetTxHashExplorer']}.` ) : ''
             strict ? process.exit( 1 ) : ''
         } else if( !account['success'] ) {
             strict ? console.log( `Balance not found. Check for pending transactions: ${selection['faucetTxHashExplorer']}.` ) : ''
             strict ? process.exit( 1 ) : ''
-        } 
+        }
+
         return account
     }
 
