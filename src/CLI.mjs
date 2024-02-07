@@ -70,7 +70,6 @@ export class CLI {
 
         switch( response['generalOption'] ) {
             case 'Add Accounts':
-                // TODO
                 await this.#addAccounts()
                 break
             case 'Add a Template':
@@ -81,11 +80,9 @@ export class CLI {
                 break
             case 'Import Project':
                 await this.#importProject()
-                // TODO
                 break
             case 'Start Server':
                 await this.#addServer()
-                // TODO
                 break
             default:
                 break
