@@ -9,7 +9,11 @@
   "bin": {
     "easymina": "bin/easymina.js"
   },
-  "scripts": {},
+  "scripts": {
+    "em/hello-world/0": "tsc -p projects/hello-world/tsconfig.json && node projects/hello-world/backend/0-create-accounts.mjs",
+    "em/hello-world/1": "tsc -p projects/hello-world/tsconfig.json && node projects/hello-world/backend/1-deploy-smart-contract.mjs",
+    "em/hello-world/2": "tsc -p projects/hello-world/tsconfig.json && node projects/hello-world/backend/2-call-method.mjs"
+  },
   "keywords": [
     "Mina",
     "zkApp"

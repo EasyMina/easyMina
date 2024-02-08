@@ -73,20 +73,26 @@ export class EasyMina {
     #git
     #typescript
     #npm
-
     #minaData
 
 
-    constructor( { encrypt=true, setSecret=true, networkName=undefined, o1js } ) {
+    constructor( { encryption=true, setSecret=true, networkName=undefined, o1js } ) {
+        this.#config = config
+
+        const [ messages, comments ] = this.#validateConstructor( { encryption, setSecret, networkName, o1js } )
+        printMessages( { messages, comments } )
+
         PrivateKey = o1js['PrivateKey']
 
-        this.#config = config
-        this.init( { encrypt, setSecret, networkName, o1js } )
-        return 
+        const encrypt = encryption
+        this.init( { 'encryption': encrypt, setSecret, networkName, o1js } )
+        return true
     }
 
 
-    init( { encrypt=true, setSecret=true, networkName=undefined, o1js } ) {
+    init( { encryption=true, setSecret=true, networkName=undefined, o1js } ) {
+        const encrypt = encryption
+
         const [ messages, comments ] = this.#validateInit( { encrypt, setSecret, networkName } )
         printMessages( { messages, comments } )
 
@@ -395,6 +401,7 @@ export class EasyMina {
 
 
     async createAccounts( { names, groupName, pattern=true } ) {
+        console.log( 'HERE' )
         const networkName = this.#state['networkName']
         const [ messages, comments ] = this.#validateCreateAccount( { 'name': 'placeholder', names, groupName, pattern, networkName } )
         printMessages( { messages, comments } )
@@ -408,20 +415,23 @@ export class EasyMina {
 
             const spinner = ora()
             spinner.start( ` ${name}` )
+
             if( !missingNames.includes( name ) ) {
+console.log( 'AAAA' )
+
                 const address = await this.getAccount( { name, groupName, checkStatus: true } )
                 deployers.push( {
                     'filePath': address['filePath'],
                     'publicKey': address['publicKey']['base58'],
                     'explorer': address['explorer']
                 } )
-
+console.log( 'AAAA 2' )
                 const durationInMilliseconds = moment()
                     .diff( moment.unix( address['createdUnix'] ) )
 
                 const duration = moment.duration( durationInMilliseconds )
                 const durationHumanize = duration.humanize()
-
+console.log( 'AAAA 3' )
                 const symbol = address['balance'] === null ? '🟨' : '🟩'
                 spinner.info( ` ${symbol} ${name} (${shortenAddress( { 'publicKey': address['publicKey']['base58'] } )})` )
                 console.log( `   Balance: ${address['balance']}, Nonce: ${address['nonce']}, Created ${durationHumanize} ago.`, )
@@ -465,12 +475,19 @@ export class EasyMina {
             }
         }
 
-        const encrypt = this.#state['encryption']
-        const account = this.#account
+        // const encrypt = this.#state['encryption']
+        // const account = this.#account
+        // const id = this.#state['secretId']
 
-        const id = this.#state['secretId']
-        deployer = await account
-            .create( { name, groupName, pattern, networkName, encrypt, id, spinner } )
+        deployer = await this.#account.create( { 
+            name, 
+            groupName, 
+            pattern, 
+            networkName, 
+            'encrypt': this.#state['encrypt'], 
+            'id': this.#state['secretId'], 
+            spinner 
+        } )
 
         const fileContent = this.#encryption
             .encryptCredential( { 'credential': deployer } )
@@ -612,6 +629,7 @@ export class EasyMina {
 
 
     async getAccount( { name, groupName, checkStatus=false, strict=false } ) {
+console.log( 'BBB' )
         const accounts = this.getAccounts()
 
         const [ messages, comments ] = this.#validateGetAccount( { name, groupName, accounts, checkStatus, strict } )
@@ -633,7 +651,7 @@ export class EasyMina {
             'createdUnix': null,
             'explorer': null
         }
-
+        console.log( 'BBB 2' )
         if( checkStatus ) {
             const data = await this.getAccountStatus( { 
                 'publicKey': selection['addressFull'],
@@ -641,7 +659,7 @@ export class EasyMina {
                 strict,
                 selection
             } ) 
-
+            console.log( 'CCC 3' )
             const tmp = [
                 [ data['balance'], 'balance' ],
                 [ data['nonce'], 'nonce' ]
@@ -689,7 +707,7 @@ export class EasyMina {
             'preset': 'accountBalance', 
             'userVars': { publicKey }
         } )
-
+console.log( 'DDD' )
         const account = {
             'status': {
                 'code': null,
@@ -980,6 +998,28 @@ export class EasyMina {
         } else if( !projectNames.includes( projectName ) ) {
             messages.push( `Key 'projectName' with the value '${projectName}' is not valid. Choose from ${projectNames.map( a => `'${a}'`).join( ', ')} instead.` )
         }
+
+        return [ messages, comments ]
+    }
+
+
+    #validateConstructor( { encryption, setSecret, networkName, o1js } ) {
+        let messages = []
+        let comments = []
+
+        if( o1js === undefined ) {
+            messages.push( `Key 'o1js' is 'undefined'.` )
+        } else if( typeof o1js !== 'object' ) {
+            messages.push( `Key 'o1js' is not type of 'object'.` )
+        } else if( Object.keys( o1js ).length === 0 ) {
+            messages.push( `Key 'o1js' is empty.` )
+        }
+
+        const encrypt = encryption
+        const [ m, c ] = this.#validateInit( { encrypt, setSecret, networkName } )
+
+        messages = [ ...messages, ...m ]
+        comments = [ ...comments, ...c ]
 
         return [ messages, comments ]
     }

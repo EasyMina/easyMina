@@ -131,7 +131,14 @@ export class Encryption {
         printMessages( { messages, comments } )
 
         const result = JSON.parse( JSON.stringify( credential ) )
-        if( result['header']['encrypt'] ) {
+
+        if( !Object.hasOwn( result['header'], 'encrypt' ) ) {
+            console.log( 'account does not have a header property "encrypt".' )
+            process.exit( 1 )
+        } else if( typeof result['header']['encrypt'] !== 'boolean' ) {
+            console.log( 'account property "encrypt" is not type of boolean.' )
+            process.exit( 1 )
+        } else if( result['header']['encrypt'] ) {
             result['body'] = this.encrypt( { 
                 'text': JSON.stringify( result['body'] )
             } )

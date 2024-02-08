@@ -311,6 +311,7 @@ export class Server {
                     'contract': this.#contract, 
                     'encryption': this.#encryption
                 } )
+
                 res.json( { 'data': Object.keys( contracts[ projectName ] ) } ) 
             }
         )
