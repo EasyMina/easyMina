@@ -312,7 +312,13 @@ export class Server {
                     'encryption': this.#encryption
                 } )
 
-                res.json( { 'data': Object.keys( contracts[ projectName ] ) } ) 
+                let data = []
+                if( Object.hasOwn( contracts, projectName ) === false ) {
+                } else {
+                    data = Object.keys( contracts[ projectName ] )
+                }
+
+                res.json( { data } ) 
             }
         )
 
