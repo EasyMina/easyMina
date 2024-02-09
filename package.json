@@ -12,7 +12,10 @@
   "scripts": {
     "em/hello-world/0": "tsc -p projects/hello-world/tsconfig.json && node projects/hello-world/backend/0-create-accounts.mjs",
     "em/hello-world/1": "tsc -p projects/hello-world/tsconfig.json && node projects/hello-world/backend/1-deploy-smart-contract.mjs",
-    "em/hello-world/2": "tsc -p projects/hello-world/tsconfig.json && node projects/hello-world/backend/2-call-method.mjs"
+    "em/hello-world/2": "tsc -p projects/hello-world/tsconfig.json && node projects/hello-world/backend/2-call-method.mjs",
+    "em/sd-sd/0": "tsc -p projects/sd-sd/tsconfig.json && node projects/sd-sd/backend/0-create-accounts.mjs",
+    "em/sd-sd/1": "tsc -p projects/sd-sd/tsconfig.json && node projects/sd-sd/backend/1-deploy-smart-contract.mjs",
+    "em/sd-sd/2": "tsc -p projects/sd-sd/tsconfig.json && node projects/sd-sd/backend/2-call-method.mjs"
   },
   "keywords": [
     "Mina",

@@ -98,25 +98,29 @@ console.log( 'LOCAL VERSION 2 ' )
 
     async #addTemplate() {
         const templates = this.#easyMina.getTemplateNames()
-        const questions = [
+
+        const { template } = await inquirer.prompt( [
             {
-              type: 'list',
-              name: 'template',
-              choices: templates,
-              message: 'Choose project name:',
-            },
+                'type': 'list',
+                'name': 'template',
+                'choices': templates,
+                'message': 'Choose project name:',
+              }
+        ] )
+
+        const { projectName } = await inquirer.prompt( [
             {
-                type: 'input',
-                name: 'projectName',
-                message: 'Enter your project name:',
-                default: '',
-                validate: function ( input ) {
-                    return input.trim() !== '' ? true : 'Project Name can not be empty.'
+                'type': 'input',
+                'name': 'projectName',
+                'message': 'Enter your project name:',
+                'default': template,
+                'validate': ( name ) => {
+                    name = name.trim()
+                    const regex = config['validate']['values']['stringsAndDash']['regex']
+                    return regex.test( name ) ? true : config['validate']['values']['stringsAndDash']['description']
                 }
             }
-        ]
-
-        const { template, projectName } = await inquirer.prompt( questions )
+        ] )
 
         const result = await this.#easyMina.importProject( { 
             'url': `local://${template}`,
@@ -151,7 +155,6 @@ console.log( 'LOCAL VERSION 2 ' )
 
                                 return acc
                             }, [] )
-                            
 
                         const test = namesArray
                             .map( name => {
