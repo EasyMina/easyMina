@@ -35,8 +35,5 @@
     "open": "^10.0.3",
     "patternfinder": "^0.0.1"
   },
-  "description": "",
-  "devDependencies": {
-    "easymina": "^1.1.9"
-  }
+  "description": ""
 }
