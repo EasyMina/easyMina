@@ -138,7 +138,11 @@ export class EasyMina {
         }
 
         this.#minaData = new MinaData( {
-            networkName
+            networkName,
+            'graphQl': {
+                'proxy': [ 'https://api.minascan.io/node/berkeley/v1/graphql' ],
+                'standard': [ 'https://berkeley.graphql.minaexplorer.com' ],
+            }
         } )
 
         if( setSecret ) {
@@ -401,7 +405,6 @@ export class EasyMina {
 
 
     async createAccounts( { names, groupName, pattern=true } ) {
-        console.log( 'HERE' )
         const networkName = this.#state['networkName']
         const [ messages, comments ] = this.#validateCreateAccount( { 'name': 'placeholder', names, groupName, pattern, networkName } )
         printMessages( { messages, comments } )
@@ -417,21 +420,19 @@ export class EasyMina {
             spinner.start( ` ${name}` )
 
             if( !missingNames.includes( name ) ) {
-console.log( 'AAAA' )
-
                 const address = await this.getAccount( { name, groupName, checkStatus: true } )
                 deployers.push( {
                     'filePath': address['filePath'],
                     'publicKey': address['publicKey']['base58'],
                     'explorer': address['explorer']
                 } )
-console.log( 'AAAA 2' )
+
                 const durationInMilliseconds = moment()
                     .diff( moment.unix( address['createdUnix'] ) )
 
                 const duration = moment.duration( durationInMilliseconds )
                 const durationHumanize = duration.humanize()
-console.log( 'AAAA 3' )
+
                 const symbol = address['balance'] === null ? '🟨' : '🟩'
                 spinner.info( ` ${symbol} ${name} (${shortenAddress( { 'publicKey': address['publicKey']['base58'] } )})` )
                 console.log( `   Balance: ${address['balance']}, Nonce: ${address['nonce']}, Created ${durationHumanize} ago.`, )
@@ -629,7 +630,6 @@ console.log( 'AAAA 3' )
 
 
     async getAccount( { name, groupName, checkStatus=false, strict=false } ) {
-console.log( 'BBB' )
         const accounts = this.getAccounts()
 
         const [ messages, comments ] = this.#validateGetAccount( { name, groupName, accounts, checkStatus, strict } )
@@ -651,7 +651,7 @@ console.log( 'BBB' )
             'createdUnix': null,
             'explorer': null
         }
-        console.log( 'BBB 2' )
+
         if( checkStatus ) {
             const data = await this.getAccountStatus( { 
                 'publicKey': selection['addressFull'],
@@ -659,7 +659,7 @@ console.log( 'BBB' )
                 strict,
                 selection
             } ) 
-            console.log( 'CCC 3' )
+
             const tmp = [
                 [ data['balance'], 'balance' ],
                 [ data['nonce'], 'nonce' ]
@@ -707,7 +707,7 @@ console.log( 'BBB' )
             'preset': 'accountBalance', 
             'userVars': { publicKey }
         } )
-console.log( 'DDD' )
+
         const account = {
             'status': {
                 'code': null,

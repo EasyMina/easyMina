@@ -14,7 +14,11 @@ const html = `
 
   async function main( { ids } ) {
     const minaData = new MinaData( {
-      'networkName': 'berkeley'
+      'networkName': 'berkeley',
+      'graphQl': {
+        'proxy': [ 'https://api.minascan.io/node/berkeley/v1/graphql' ],
+        'standard': [ 'https://berkeley.graphql.minaexplorer.com' ],
+    }
     } )
 
     const chunkSize = 20

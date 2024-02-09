@@ -12,7 +12,7 @@ const frontend = `
 const overview = `
 {{projects}}
 
-<details closed>
+<details open>
 <summary>
 <h2>Credentials</h2>
 </summary>  
