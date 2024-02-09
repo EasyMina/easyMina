@@ -1,6 +1,6 @@
 {
   "name": "easymina",
-  "version": "1.2.2",
+  "version": "1.2.4",
   "main": "src/EasyMina.mjs",
   "type": "module",
   "directories": {
