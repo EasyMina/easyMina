@@ -3,6 +3,8 @@ import figlet from 'figlet'
 import chalk from 'chalk'
 
 import * as o1js from 'o1js'
+
+import { config } from './data/config.mjs'
 import { EasyMina } from './EasyMina.mjs'
 import readline from 'readline'
 import fs from 'fs'
@@ -131,34 +133,68 @@ console.log( 'LOCAL VERSION 2 ' )
 
 
     async #addAccounts() {
-        const questions = [
-            {
-              type: 'input',
-              name: 'names',
-              message: 'Enter names (comma-separated):',
-              validate: function (input) {
-                const namesArray = input.split(',').map(name => name.trim())
-                return namesArray.length > 0 ? true : 'Please enter at least one name.'
-              },
-            },
-            {
-              type: 'input',
-              name: 'groupName',
-              message: 'Enter the group name:',
-              validate: function (input) {
-                return input.trim() !== '' ? true : 'Please enter a non-empty group name.'
-              },
-            }
-        ]
-          
-        const response = await inquirer
-            .prompt( questions )
 
-        let { names, groupName } = response
+        let { names } = await inquirer
+            .prompt( [
+                {
+                    'type': 'input',
+                    'name': 'names',
+                    'message': 'Enter names (comma-separated):',
+                    'validate': ( input ) => {
+                        const namesArray = input
+                            .split( ',' )
+                            .reduce( ( acc, name, index ) => {
+                                name = name.trim()
+                                if( name !== '' ) {
+                                    acc.push( name )
+                                } 
+
+                                return acc
+                            }, [] )
+                            
+
+                        const test = namesArray
+                            .map( name => {
+                                const regex = config['validate']['values']['stringsAndDash']['regex']
+                                return regex.test( name )
+                            } )
+                            .every( a => a )
+
+                        let status = true
+                        let message = ''
+                        if( namesArray.length === 0 ) {
+                            status = false
+                            message = 'Please enter at least one name.' 
+                        } else if( !test ) {
+                            status = false
+                            message = config['validate']['values']['stringsAndDash']['description']
+                        }
+
+                        return status ? true : message
+                    }
+                }
+            ] )
+          
+        const { groupName } = await inquirer
+            .prompt( [
+                {
+                    'type': 'input',
+                    'name': 'groupName',
+                    'message': 'Enter the group name:',
+                    'default': names,
+                    'validate': ( name ) => {
+                        name = name.trim()
+                        const regex = config['validate']['values']['stringsAndDash']['regex']
+                        return regex.test( name ) ? true : config['validate']['values']['stringsAndDash']['description']
+                  },
+                }
+            ] )
+
         names = names
             .split( ',' )
             .map( name => name.trim() )
             .filter( a => a !== '' )
+
         await this.#easyMina
             .createAccounts( { names, 'networkName': 'berkeley', groupName } )
 
